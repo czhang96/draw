@@ -17,9 +17,6 @@ app.get('/', function(request, response) {
   response.sendfile('index.html');
 });
 //
-io.configure( function() {
-    io.set('close timeout', 60*60*24); // 24h time out
-});
 io.on('connection', function(socket){
 
 	game.initGame(io,socket);

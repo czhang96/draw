@@ -12,6 +12,8 @@ exports.initGame = function(sio,socket){
     gameSocket.on('playerJoinGame',playerJoinGame);
     gameSocket.on('updatePlayerPlayersServer',updatePlayerPlayersServer);
     gameSocket.on('chatMessage',chatMessage);
+    gameSocket.on('startGame',startGame);
+    gameSocket.on('mousemove',mousemove);
 }
 
 
@@ -43,4 +45,14 @@ function updatePlayerPlayersServer(data) {
 function chatMessage(data) {
 	console.log(data);
    	io.sockets.in(data.gameID).emit('newChatMessage',data);
+}
+function startGame(data) {
+
+    io.sockets.in(data).emit('prepareStartGame');
+
+
+}
+function mousemove(data){
+    console.log(data);
+    this.broadcast.to(data.gameId).emit('isMoving',data);
 }
