@@ -1,6 +1,6 @@
 var io;
 var gameSocket;
-var rooms = [];
+var rooms = {};
 exports.initGame = function(sio,socket){
 	io = sio;
 	gameSocket = socket;
@@ -14,8 +14,12 @@ exports.initGame = function(sio,socket){
     gameSocket.on('chatMessage',chatMessage);
     gameSocket.on('startGame',startGame);
     gameSocket.on('mousemove',mousemove);
+    gameSocket.on('gameEnd',gameEnd);
 }
-
+function randomProperty(object) {
+  var keys = Object.keys(object);
+  return keys[Math.floor(keys.length * Math.random())];
+};
 
 function hostCreateNewGame(data){
 
@@ -28,6 +32,8 @@ function hostCreateNewGame(data){
 function playerJoinGame(data) {
     var sock = this;
     var room = gameSocket.manager.rooms["/" + data.gameID];
+    var gameID = data.gameID;
+    console.log(gameSocket.manager.rooms["/" + data.gameID]);
     if( room != undefined ){
         data.mySocketID = sock.id;
         sock.join(data.gameID);
@@ -37,22 +43,31 @@ function playerJoinGame(data) {
 
         this.emit('error',{message: "This room does not exist."} );
     }
+    if (rooms[gameID] == undefined){
+        rooms[gameID] = "waiting";
+    }
+    console.log(rooms);
+    if (rooms[gameID]=="playing"){
+        this.emit('prepareStartGame',{id:"not_you",word:"BIRD"});
+    }
 }
 function updatePlayerPlayersServer(data) {
-	console.log(data);
    	io.sockets.in(data[0].gameID).emit('updatePlayerPlayers',data);
 }
 function chatMessage(data) {
-	console.log(data);
    	io.sockets.in(data.gameID).emit('newChatMessage',data);
 }
 function startGame(data) {
-
-    io.sockets.in(data).emit('prepareStartGame');
-
-
+    console.log(data);
+    io.sockets.in(data).emit('prepareStartGame',{id:io.sockets.clients(data)[Math.floor(io.sockets.clients(data).length * Math.random())].id,word:"BIRD"});
+    rooms[data] = "playing";
 }
 function mousemove(data){
+    this.broadcast.to(data.gameID).emit('isMoving',data);
+}
+function gameEnd(data){
+    //{winner_name}
     console.log(data);
-    this.broadcast.to(data.gameId).emit('isMoving',data);
+    rooms[data.gameID]="waiting";
+    io.sockets.in(data.gameID).emit('gameEnded',data.name);
 }

@@ -1,3 +1,8 @@
+/* 
+	- No win check unless game started
+
+-*/
+
 var express = require('express');
 
 var app = express();
@@ -13,9 +18,17 @@ server.listen(process.env.PORT || 5000);
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
 
-app.get('/', function(request, response) {
-  response.sendfile('index.html');
+app.get('/', function(req, res) {
+  res.sendfile('index.html');
 });
+app.get('/1', function(req, res) {
+  res.sendfile('index1.html');
+});
+// app.get('/:id', function(req,res) {
+//   if (req.params.id=="foo"){
+//   	res.sendfile('index.html');
+//   }
+// });
 //
 io.on('connection', function(socket){
 
