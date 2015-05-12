@@ -4,7 +4,7 @@ $(function(){
 
         init : function(){
             var url = "http://localhost:5000";
-            //var url = 'https://ancient-fjord-8441.herokuapp.com';
+            var url = 'https://ancient-fjord-8441.herokuapp.com';
             IO.socket = io.connect(url);
             IO.bindEvents();
 
@@ -56,7 +56,7 @@ $(function(){
         clients:{},
         word:"",
         gameRole: 'guess',
-
+        gameState: 'lobby',
         init: function(){
             App.cacheElements();
             App.bindEvents();
@@ -94,8 +94,15 @@ $(function(){
             $('#room_number_header').html(App.gameID);
             $('#players_waiting').append('<p>'+data.playerName+'</p>');
             App.players.push(data);
-
             $("#chat_area").html(App.$chat_template);
+            App.$cont = $('#chat');
+            $("#m").keyup(function(event){
+                if(event.keyCode == 13){
+                    $("#send_message").click();
+                    
+                }
+            });
+        
         },
         onJoinRoom: function(){
             var data = {gameID: $('#room_id').val(), 
@@ -104,7 +111,7 @@ $(function(){
             App.myRole = 'Player';
             App.myName=data.playerName;
             App.gameID=data.gameID;
-            $("#chat_area").html(App.$chat_template);
+            
         },
         updatePlayers: function(data){
             if (App.myRole == 'Host'){
@@ -117,6 +124,14 @@ $(function(){
         },
         updatePlayerScreen: function(data){
             if (App.myRole == 'Player'){
+                $('#main_area').html(App.$lobby);
+                $("#chat_area").html(App.$chat_template);
+                App.$cont = $('#chat');
+                $("#m").keyup(function(event){
+                    if(event.keyCode == 13){
+                        $("#send_message").click();    
+                    }
+                });
                 $('#instructions').html("<h1>"+App.gameID+"</h1>");
                 $('#room_number_header').html(App.gameID);
                 $('#players_waiting').html("");
@@ -130,7 +145,7 @@ $(function(){
             var chat_message=$('#m').val();
             console.log(chat_message);
             console.log(App.word);
-            if (chat_message.toUpperCase().indexOf(App.word) != -1 ){
+            if (App.gameState == "playing" && chat_message.toUpperCase().indexOf(App.word) != -1 ){
                 console.log("win");
                 data= {'name':App.myName,'gameID':App.gameID};
                 IO.socket.emit('gameEnd',data);
@@ -140,7 +155,10 @@ $(function(){
             $('#m').val('');
         },
         updateChat: function(data){
-            $('#messages').append($('<li>').text(data.playerName+": "+data.message));
+            $('#messages').append($('<li class="pure-menu-item">').text(data.playerName+": "+data.message));
+            App.$cont[0].scrollTop = App.$cont[0].scrollHeight;
+            App.$cont[0].scrollTop = App.$cont[0].scrollHeight;
+            
         },
         startGame: function(){
             console.log(App.gameID);
@@ -149,9 +167,17 @@ $(function(){
         prepareStartGame: function(data){
             console.log(data);
             console.log(App.mySocketID);
+
             $("#main_area").html(App.$game_area);
-
-
+            $("#chat_area").html(App.$chat_template);
+            App.$cont = $('#chat');
+            $("#m").keyup(function(event){
+                if(event.keyCode == 13){
+                    $("#send_message").click();
+                    
+                }
+            });
+            App.gameState = "playing";
             App.drawing = false;
             App.canvas = $('#paper');
             App.ctx = App.canvas[0].getContext('2d');
@@ -220,6 +246,7 @@ $(function(){
             App.ctx.stroke();
         },
         gameEnded: function(data){
+            App.gameState = "lobby";
             console.log("i know who won");
             $("#main_area").html(App.$lobby);
             $('#instructions').html("<h1>"+App.gameID+"</h1><h2>Winner: "+data+"</h2");
