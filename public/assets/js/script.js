@@ -18,6 +18,7 @@ $(function(){
             IO.socket.on('prepareStartGame',IO.prepareStartGame);
             IO.socket.on('isMoving',IO.isMoving);
             IO.socket.on('gameEnded',IO.gameEnded);
+            IO.socket.on('saveChatHistory', IO.saveChatHistory);
         },
         onConnected: function(){
             App.mySocketID = IO.socket.socket.sessionid;
@@ -43,10 +44,13 @@ $(function(){
         },
         gameEnded: function(data){
             App.gameEnded(data);
+        },
+        saveChatHistory: function(data){
+            chatHistory = data;
+            console.log(chatHistory);
         }
-
     }
-    
+    var chatHistory = 'foo';
     var App = {
         gameID:0,
         myRole: '',
@@ -95,6 +99,7 @@ $(function(){
             $('#players_waiting').append('<p>'+data.playerName+'</p>');
             App.players.push(data);
             $("#chat_area").html(App.$chat_template);
+            $('#messages').append(chatHistory);
             App.$cont = $('#chat');
             $("#m").keyup(function(event){
                 if(event.keyCode == 13){
@@ -126,6 +131,7 @@ $(function(){
             if (App.myRole == 'Player'){
                 $('#main_area').html(App.$lobby);
                 $("#chat_area").html(App.$chat_template);
+                $('#messages').append(chatHistory);
                 App.$cont = $('#chat');
                 $("#m").keyup(function(event){
                     if(event.keyCode == 13){
@@ -158,7 +164,9 @@ $(function(){
             $('#messages').append($('<li class="pure-menu-item">').text(data.playerName+": "+data.message));
             App.$cont[0].scrollTop = App.$cont[0].scrollHeight;
             App.$cont[0].scrollTop = App.$cont[0].scrollHeight;
-            
+            console.log('chat data data');
+            console.log(data);
+            IO.socket.emit('updateServerChatHistory', data, $('#messages').html());
         },
         startGame: function(){
             console.log(App.gameID);
@@ -170,6 +178,7 @@ $(function(){
 
             $("#main_area").html(App.$game_area);
             $("#chat_area").html(App.$chat_template);
+            $('#messages').append(chatHistory);
             App.$cont = $('#chat');
             $("#m").keyup(function(event){
                 if(event.keyCode == 13){
@@ -252,15 +261,17 @@ $(function(){
             App.ctx.stroke();
         },
         gameEnded: function(data){
+            console.log(chatHistory);
             App.gameState = "lobby";
             console.log("i know who won");
-            $("#main_area").html(App.$lobby);
-            $('#instructions').html("<h1>"+App.gameID+"</h1><h2>Winner: "+data+"</h2");
-            for (var i  = 0 ; i < App.players.length ; i ++ ){
-                console.log(App.players);
-                $('#players_waiting').append('<p>'+App.players[i].playerName+'</p>');
-            }
-            
+            IO.socket.emit('startGame',App.gameID);
+            console.log(chatHistory);
+            // $("#main_area").html(App.$lobby);
+            // $('#instructions').html("<h1>"+App.gameID+"</h1><h2>Winner: "+data+"</h2");
+            // for (var i  = 0 ; i < App.players.length ; i ++ ){
+            //     console.log(App.players);
+            //     $('#players_waiting').append('<p>'+App.players[i].playerName+'</p>');
+            //}
         }
     }
 

@@ -1,7 +1,7 @@
 var io;
 var gameSocket;
 var rooms = {};
-var wordList=[]
+var wordList=[];
 
 exports.initGame = function(sio,socket,wordList){
 	io = sio;
@@ -16,6 +16,7 @@ exports.initGame = function(sio,socket,wordList){
     gameSocket.on('startGame',startGame);
     gameSocket.on('mousemove',mousemove);
     gameSocket.on('gameEnd',gameEnd);
+    gameSocket.on('updateServerChatHistory',updateServerChatHistory);
 }
 function randomProperty(object) {
   var keys = Object.keys(object);
@@ -31,6 +32,7 @@ function hostCreateNewGame(data){
 	this.join(gameID.toString());
 }
 function playerJoinGame(data) {
+   console.log('joined game');
     var sock = this;
     var room = gameSocket.manager.rooms["/" + data.gameID];
     var gameID = data.gameID;
@@ -54,8 +56,8 @@ function playerJoinGame(data) {
 function updatePlayerPlayersServer(data) {
    	io.sockets.in(data[0].gameID).emit('updatePlayerPlayers',data);
 }
-function chatMessage(data) {
-   	io.sockets.in(data.gameID).emit('newChatMessage',data);
+function chatMessage(chat_data) {
+   	io.sockets.in(chat_data.gameID).emit('newChatMessage',chat_data);
 }
 function startGame(data) {
     console.log(data);
@@ -72,4 +74,7 @@ function gameEnd(data){
     console.log(data);
     rooms[data.gameID]="waiting";
     io.sockets.in(data.gameID).emit('gameEnded',data.name);
+}
+function updateServerChatHistory(data, chat_history){
+    io.sockets.in(data.gameID).emit('saveChatHistory',chat_history);
 }
