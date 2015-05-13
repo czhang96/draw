@@ -17,6 +17,7 @@ exports.initGame = function(sio,socket,wordList){
     gameSocket.on('mousemove',mousemove);
     gameSocket.on('gameEnd',gameEnd);
     gameSocket.on('updateServerChatHistory',updateServerChatHistory);
+    gameSocket.on('startDrawingTimer', startDrawingTimer);
 }
 function randomProperty(object) {
   var keys = Object.keys(object);
@@ -77,4 +78,25 @@ function gameEnd(data){
 }
 function updateServerChatHistory(data, chat_history){
     io.sockets.in(data.gameID).emit('saveChatHistory',chat_history);
+}
+function startDrawingTimer(gameID){
+    function startTimer(secs){
+        var timeInSecs = parseInt(secs)-1;
+        var ticker = setInterval(function(){ tick(); }, 1000);
+        function tick() {
+            var secs = timeInSecs;
+            if (secs>=0) {
+            timeInSecs--;
+            io.sockets.in(gameID).emit('updateDrawingTimer',secs);
+            }
+            else {
+            clearInterval(ticker); // stop counting at zero
+                // startTimer(60);  // remove forward slashes in front of startTimer to repeat if required
+            }
+        }
+    }
+
+    startTimer(20);
+
+    
 }

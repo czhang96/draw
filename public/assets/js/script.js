@@ -19,6 +19,7 @@ $(function(){
             IO.socket.on('isMoving',IO.isMoving);
             IO.socket.on('gameEnded',IO.gameEnded);
             IO.socket.on('saveChatHistory', IO.saveChatHistory);
+            IO.socket.on('updateDrawingTimer', IO.updateDrawingTimer);
         },
         onConnected: function(){
             App.mySocketID = IO.socket.socket.sessionid;
@@ -48,6 +49,9 @@ $(function(){
         saveChatHistory: function(data){
             chatHistory = data;
             console.log(chatHistory);
+        },
+        updateDrawingTimer: function(data){
+            App.updateDrawingTimer(data);
         }
     }
     var chatHistory = 'foo';
@@ -237,6 +241,8 @@ $(function(){
                 console.log("i am the guesser");
                 console.log("i dont know the word is"+ App.word);
             }
+            console.log('bar');
+            IO.socket.emit('startAndStopDrawingTimer', App.gameID, false);
         },
 
         moving: function (data) {
@@ -261,10 +267,11 @@ $(function(){
             App.ctx.stroke();
         },
         gameEnded: function(data){
+            IO.socket.emit('startAndStopDrawingTimer', App.gameID, true);
             console.log(chatHistory);
             App.gameState = "lobby";
             console.log("i know who won");
-            IO.socket.emit('startGame',App.gameID);
+            //IO.socket.emit('startGame',App.gameID);
             console.log(chatHistory);
             // $("#main_area").html(App.$lobby);
             // $('#instructions').html("<h1>"+App.gameID+"</h1><h2>Winner: "+data+"</h2");
@@ -272,6 +279,9 @@ $(function(){
             //     console.log(App.players);
             //     $('#players_waiting').append('<p>'+App.players[i].playerName+'</p>');
             //}
+        },
+        updateDrawingTimer: function(data){
+            $('#timer').html(data);
         }
     }
 

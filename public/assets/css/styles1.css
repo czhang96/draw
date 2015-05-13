@@ -294,7 +294,11 @@ a.pure-button-primary {
     }
 
 }
-
+.timer{
+    position:absolute;
+    margin-left:30px;
+    margin-top: -70px;
+}
 /*
  * -- DESKTOP (AND UP) MEDIA QUERIES --
  * On desktops and other large devices, we want to over-ride some
