@@ -20,8 +20,8 @@ fs.readFile('words.json', 'utf8', function (err, data) {
 });
 // var static = require('node-static');
 // var fileServer = new static.Server
-server.listen(process.env.PORT || 5000);
-app.set('port', (process.env.PORT || 5000));
+server.listen(process.env.PORT || 6782);
+app.set('port', (process.env.PORT || 6782));
 app.use(express.static(__dirname + '/public'));
 app.get('/', function(req, res) {
   res.sendfile('index.html');

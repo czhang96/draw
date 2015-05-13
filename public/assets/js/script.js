@@ -3,10 +3,8 @@ $(function(){
     var IO = {
 
         init : function(){
-
-            //var url = "http://localhost:5000";
-            var url = 'https://ancient-fjord-8441.herokuapp.com';
-
+            var url = "http://129.97.134.17:6782";
+            //var url = 'https://ancient-fjord-8441.herokuapp.com';
             IO.socket = io.connect(url);
             IO.bindEvents();
 
@@ -62,7 +60,6 @@ $(function(){
         init: function(){
             App.cacheElements();
             App.bindEvents();
-
         },
         cacheElements: function(){
             App.$doc = $(document);
@@ -94,7 +91,7 @@ $(function(){
         displayNewGameScreen : function(data){
             $('#main_area').html(App.$lobby);
             $('#instructions').html("<h1>"+App.gameID+"</h1>");
-            $('#room_number_header').html(App.gameID);
+            $('#room_number_header').html('Game ID: '+ App.gameID);
             $('#players_waiting').append('<p>'+data.playerName+'</p>');
             App.players.push(data);
             $("#chat_area").html(App.$chat_template);
@@ -118,35 +115,29 @@ $(function(){
         },
         updatePlayers: function(data){
             if (App.myRole == 'Host'){
+                $('#instructions').html("<h1>"+App.gameID+"</h1>");
+                $('#room_number_header').html(App.gameID);
+                $('#players_waiting').append('<p>'+data.playerName+'</p>');
                 App.players.push(data);
-                if (App.gameState!='playing'){
-                    $('#instructions').html("<h1>"+App.gameID+"</h1>");
-                    $('#room_number_header').html(App.gameID);
-                    $('#players_waiting').append('<p>'+data.playerName+'</p>');
-                }
                 IO.socket.emit('updatePlayerPlayersServer',App.players);
             }
         },
         updatePlayerScreen: function(data){
             if (App.myRole == 'Player'){
-
-                if (App.gameState=="playing"){App.players.push(data[i]);}
-                else{
-                    $('#main_area').html(App.$lobby);
-                    $("#chat_area").html(App.$chat_template);
-                    App.$cont = $('#chat');
-                    $("#m").keyup(function(event){
-                        if(event.keyCode == 13){
-                            $("#send_message").click();    
-                        }
-                    });
-                    $('#instructions').html("<h1>"+App.gameID+"</h1>");
-                    $('#room_number_header').html(App.gameID);
-                    $('#players_waiting').html("");
-                    for (var i = 0 ; i < data.length; i++){
-                        $('#players_waiting').append('<p>'+data[i].playerName+'</p>');
-                        App.players.push(data[i]);
+                $('#main_area').html(App.$lobby);
+                $("#chat_area").html(App.$chat_template);
+                App.$cont = $('#chat');
+                $("#m").keyup(function(event){
+                    if(event.keyCode == 13){
+                        $("#send_message").click();    
                     }
+                });
+                $('#instructions').html("<h1>"+App.gameID+"</h1>");
+                $('#room_number_header').html(App.gameID);
+                $('#players_waiting').html("");
+                for (var i = 0 ; i < data.length; i++){
+                    $('#players_waiting').append('<p>'+data[i].playerName+'</p>');
+                    App.players.push(data[i]);
                 }
             }
         },
@@ -183,6 +174,7 @@ $(function(){
             $("#m").keyup(function(event){
                 if(event.keyCode == 13){
                     $("#send_message").click();
+                    
                 }
             });
             App.gameState = "playing";
@@ -195,12 +187,13 @@ $(function(){
             App.lastEmit = $.now();
             App.gameRole = (App.mySocketID==data.id?"drawer":"guesser")
             App.word=data.word;
-            $("#current-word").html((App.gameRole=="drawer")?"Word: "+App.word:"");
             App.canvas.on('mousedown',function(e){
+                if(App.gameRole == "drawer"){
                 e.preventDefault();
                 App.drawing = true;
                 App.prev.x = e.pageX;
                 App.prev.y = e.pageY;
+                }
             });
             App.$doc.bind('mouseup mouseleave',function(){
                 App.drawing = false;
@@ -228,8 +221,12 @@ $(function(){
             });
             
             if(App.gameRole == "drawer"){
-                console.log("foo");
+                console.log("i am the drawer");
                 console.log(App.word);
+            }
+            if(App.gameRole == "guesser"){
+                console.log("i am the guesser");
+                console.log("i dont know the word is"+ App.word);
             }
         },
 
@@ -268,6 +265,10 @@ $(function(){
     }
 
     IO.init();
-    App.init();   
+    App.init();
+
+
+
+    
 
 });
