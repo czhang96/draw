@@ -3,8 +3,10 @@ $(function(){
     var IO = {
 
         init : function(){
-            var url = "http://localhost:5000";
+
+            //var url = "http://localhost:5000";
             var url = 'https://ancient-fjord-8441.herokuapp.com';
+
             IO.socket = io.connect(url);
             IO.bindEvents();
 
@@ -60,6 +62,7 @@ $(function(){
         init: function(){
             App.cacheElements();
             App.bindEvents();
+
         },
         cacheElements: function(){
             App.$doc = $(document);
@@ -115,29 +118,35 @@ $(function(){
         },
         updatePlayers: function(data){
             if (App.myRole == 'Host'){
-                $('#instructions').html("<h1>"+App.gameID+"</h1>");
-                $('#room_number_header').html(App.gameID);
-                $('#players_waiting').append('<p>'+data.playerName+'</p>');
                 App.players.push(data);
+                if (App.gameState!='playing'){
+                    $('#instructions').html("<h1>"+App.gameID+"</h1>");
+                    $('#room_number_header').html(App.gameID);
+                    $('#players_waiting').append('<p>'+data.playerName+'</p>');
+                }
                 IO.socket.emit('updatePlayerPlayersServer',App.players);
             }
         },
         updatePlayerScreen: function(data){
             if (App.myRole == 'Player'){
-                $('#main_area').html(App.$lobby);
-                $("#chat_area").html(App.$chat_template);
-                App.$cont = $('#chat');
-                $("#m").keyup(function(event){
-                    if(event.keyCode == 13){
-                        $("#send_message").click();    
+
+                if (App.gameState=="playing"){App.players.push(data[i]);}
+                else{
+                    $('#main_area').html(App.$lobby);
+                    $("#chat_area").html(App.$chat_template);
+                    App.$cont = $('#chat');
+                    $("#m").keyup(function(event){
+                        if(event.keyCode == 13){
+                            $("#send_message").click();    
+                        }
+                    });
+                    $('#instructions').html("<h1>"+App.gameID+"</h1>");
+                    $('#room_number_header').html(App.gameID);
+                    $('#players_waiting').html("");
+                    for (var i = 0 ; i < data.length; i++){
+                        $('#players_waiting').append('<p>'+data[i].playerName+'</p>');
+                        App.players.push(data[i]);
                     }
-                });
-                $('#instructions').html("<h1>"+App.gameID+"</h1>");
-                $('#room_number_header').html(App.gameID);
-                $('#players_waiting').html("");
-                for (var i = 0 ; i < data.length; i++){
-                    $('#players_waiting').append('<p>'+data[i].playerName+'</p>');
-                    App.players.push(data[i]);
                 }
             }
         },
@@ -174,7 +183,6 @@ $(function(){
             $("#m").keyup(function(event){
                 if(event.keyCode == 13){
                     $("#send_message").click();
-                    
                 }
             });
             App.gameState = "playing";
@@ -187,6 +195,7 @@ $(function(){
             App.lastEmit = $.now();
             App.gameRole = (App.mySocketID==data.id?"drawer":"guesser")
             App.word=data.word;
+            $("#current-word").html((App.gameRole=="drawer")?"Word: "+App.word:"");
             App.canvas.on('mousedown',function(e){
                 e.preventDefault();
                 App.drawing = true;
@@ -259,10 +268,6 @@ $(function(){
     }
 
     IO.init();
-    App.init();
-
-
-
-    
+    App.init();   
 
 });

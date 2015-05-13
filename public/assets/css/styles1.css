@@ -243,6 +243,9 @@ a.pure-button-primary {
     padding:5px;
     background:white;
 }
+.#current-word{
+    margin-right:45%;
+}
 /*
  * -- TABLET (AND UP) MEDIA QUERIES --
  * On tablets and other medium-sized devices, we want to customize some
@@ -302,4 +305,12 @@ a.pure-button-primary {
     .splash-head {
         font-size: 150%;
     }
+}
+@media (max-height: 55em) {
+    /* We increase the header font size even more */
+    .custom-restricted {
+
+        height:400px;
+
+    }   
 }
