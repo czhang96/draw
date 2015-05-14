@@ -20,6 +20,7 @@ $(function(){
             IO.socket.on('gameEnded',IO.gameEnded);
             IO.socket.on('saveChatHistory', IO.saveChatHistory);
             IO.socket.on('updateDrawingTimer', IO.updateDrawingTimer);
+            IO.socket.on('renderUserList', IO.renderUserList);
         },
         onConnected: function(){
             App.mySocketID = IO.socket.socket.sessionid;
@@ -52,14 +53,20 @@ $(function(){
         },
         updateDrawingTimer: function(data){
             App.updateDrawingTimer(data);
+        },
+        renderUserList: function(data){
+            App.renderUserList(data);
         }
     }
+    var usersHistory = 'ping';
+    var pointsHistory = 'bar';
     var chatHistory = 'foo';
     var App = {
         gameID:0,
         myRole: '',
         myName: '',
         mySocketID:'',
+        myPoints:0,
         players : [],
         clients:{},
         word:"",
@@ -85,7 +92,8 @@ $(function(){
 
         },
         onCreateClick: function(){
-            data={playerName:$('#player_name').val() || 'anon'};
+            data={playerName:$('#player_name').val() || 'anon',
+                  myPoints: 0};
             IO.socket.emit('hostCreateNewGame',data);
         },
         gameInit: function(data){
@@ -94,13 +102,13 @@ $(function(){
             App.myRole='Host';
             App.myName=data.playerName;
             App.displayNewGameScreen(data);
-
         },
         displayNewGameScreen : function(data){
             $('#main_area').html(App.$lobby);
             $('#instructions').html("<h1>"+App.gameID+"</h1>");
             $('#room_number_header').html('Game ID: '+ App.gameID);
             $('#players_waiting').append('<p>'+data.playerName+'</p>');
+            console.log(data);
             App.players.push(data);
             $("#chat_area").html(App.$chat_template);
             $('#messages').append(chatHistory);
@@ -114,12 +122,16 @@ $(function(){
         
         },
         onJoinRoom: function(){
+            console.log('onjoinroom');
             var data = {gameID: $('#room_id').val(), 
-                        playerName:$('#player_name').val() || 'anon'};
+                        playerName:$('#player_name').val() || 'anon',
+                        myPoints: 0};
             IO.socket.emit('playerJoinGame',data);
             App.myRole = 'Player';
             App.myName=data.playerName;
             App.gameID=data.gameID;
+            App.myPoints=0;
+            console.log(data);
             
         },
         updatePlayers: function(data){
@@ -150,6 +162,20 @@ $(function(){
                     App.players.push(data[i]);
                 }
             }
+            var userList = "<li class='pure-menu-item'>Users</li>";
+            var pointsList = "<li class='pure-menu-item'>Score</li>";
+            for(var i = 0; i < data.length; i++){
+                userList = userList + "<li class='pure-menu-item'>"+data[i].playerName+"</li>";
+                pointsList = pointsList + "<li class='pure-menu-item'>"+data[i].myPoints+"</li>";
+            }
+            console.log(data);
+            console.log(userList);
+            console.log(pointsList);
+            $("#userlist").html(userList);
+            $("#score").html(pointsList);
+            usersHistory = userList;
+            pointsHistory = pointsList;
+            IO.socket.emit('updateUserList', data);
         },
         sendMessage: function(){
             var chat_message=$('#m').val();
@@ -177,12 +203,16 @@ $(function(){
             IO.socket.emit('startGame',App.gameID);
         },
         prepareStartGame: function(data){
-            console.log(data);
-            console.log(App.mySocketID);
-
+            console.log('user history');
+            console.log(usersHistory);
+            console.log('point history');
+            console.log(pointsHistory);
             $("#main_area").html(App.$game_area);
             $("#chat_area").html(App.$chat_template);
             $('#messages').append(chatHistory);
+            $("#userlist").html(usersHistory);
+            $("#score").html(pointsHistory);
+
             App.$cont = $('#chat');
             $("#m").keyup(function(event){
                 if(event.keyCode == 13){
@@ -282,8 +312,11 @@ $(function(){
             }
         },
         updateDrawingTimer: function(data){
-                $('#timer').html(data);
-            
+            $('#timer').html(data);            
+        },
+        renderUserList: function(data){
+            console.log('inside renderuserList');
+            console.log(data);
         }
     }
 
