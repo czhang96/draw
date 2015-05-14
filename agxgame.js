@@ -90,13 +90,17 @@ function startDrawingTimer(gameID){
             io.sockets.in(gameID).emit('updateDrawingTimer',secs);
             }
             else {
-            clearInterval(ticker); // stop counting at zero
+            console.log('cleared?');
+            stopTick(); // stop counting at zero
                 // startTimer(60);  // remove forward slashes in front of startTimer to repeat if required
             }
         }
+        function stopTick(){
+            clearInterval(ticker);
+        }
     }
 
-    startTimer(20);
+    startTimer(5);
 
     
 }

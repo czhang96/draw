@@ -3,7 +3,7 @@ $(function(){
     var IO = {
 
         init : function(){
-            var url = "http://129.97.134.17:6782";
+            var url = "http://localhost:6782";
             //var url = 'https://ancient-fjord-8441.herokuapp.com';
             IO.socket = io.connect(url);
             IO.bindEvents();
@@ -234,15 +234,17 @@ $(function(){
             });
             
             if(App.gameRole == "drawer"){
+
                 console.log("i am the drawer");
                 console.log(App.word);
+                $("#drawer_word").html("Your Word is: "+App.word);
             }
             if(App.gameRole == "guesser"){
                 console.log("i am the guesser");
                 console.log("i dont know the word is"+ App.word);
             }
             console.log('bar');
-            IO.socket.emit('startAndStopDrawingTimer', App.gameID, false);
+            IO.socket.emit('startDrawingTimer', App.gameID, false);
         },
 
         moving: function (data) {
@@ -267,21 +269,21 @@ $(function(){
             App.ctx.stroke();
         },
         gameEnded: function(data){
-            IO.socket.emit('startAndStopDrawingTimer', App.gameID, true);
             console.log(chatHistory);
             App.gameState = "lobby";
             console.log("i know who won");
-            //IO.socket.emit('startGame',App.gameID);
+            IO.socket.emit('startGame',App.gameID);
             console.log(chatHistory);
             // $("#main_area").html(App.$lobby);
             // $('#instructions').html("<h1>"+App.gameID+"</h1><h2>Winner: "+data+"</h2");
-            // for (var i  = 0 ; i < App.players.length ; i ++ ){
-            //     console.log(App.players);
-            //     $('#players_waiting').append('<p>'+App.players[i].playerName+'</p>');
-            //}
+            for (var i  = 0 ; i < App.players.length ; i ++ ){
+                console.log(App.players);
+                $('#players_waiting').append('<p>'+App.players[i].playerName+'</p>');
+            }
         },
         updateDrawingTimer: function(data){
-            $('#timer').html(data);
+                $('#timer').html(data);
+            
         }
     }
 

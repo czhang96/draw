@@ -233,9 +233,12 @@ a.pure-button-primary {
 #form{
     text-align:left;
 }
+#chat_area{
+    margin-top:-150px;
+    margin-right:5px;
+}
 .custom-restricted {
     text-align:left;
-    margin-top:-100px;
     height:600px;
     width: 100%;
     border: 1px solid gray;
@@ -243,6 +246,7 @@ a.pure-button-primary {
     padding:5px;
     background:white;
 }
+
 .#current-word{
     margin-right:45%;
 }
@@ -312,9 +316,14 @@ a.pure-button-primary {
 }
 @media (max-height: 55em) {
     /* We increase the header font size even more */
-    .custom-restricted {
+    .custom-restricted2 {
 
-        height:400px;
+        height:350px;
+
+    }   
+    .custom-restricted3 {
+
+        height:250px;
 
     }   
 }

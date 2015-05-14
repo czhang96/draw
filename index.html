@@ -21,6 +21,7 @@
 <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
+
 <div class="header">
     <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
         <a class="pure-menu-heading" href="">Draw!</a><a id = "current-word" class="pure-menu-heading"></a><a id = "room_number_header" class="pure-menu-heading" style='float:right;'></a>
@@ -73,7 +74,10 @@
         
             <div class = "pure-u-19-24">
                 <div style= "position:fixed;top:0;left:0;" id="cursors"></div>
-                <div id="timer" class="timer"></div>
+                <div class='timer'>
+                <span>Time Left: </span><span id="timer">0</span>
+                <div id='drawer_word'></div>
+                </div>
                 <canvas id="paper" style= "position:fixed;top:0;left:0;" width="1900" height="1000">
                     Your browser needs to support canvas for this to work!
                 </canvas>
@@ -85,7 +89,21 @@
 </script>      
 <script id = "chat_template" type="text/template">
 <div style = "position:relative;z-index:999">
-    <div id = "chat" class="pure-menu pure-menu-scrollable custom-restricted" >
+    <div id = "users" class="pure-menu pure-menu-scrollable custom-restricted custom-restricted3">
+    <ul id='userlist' style="float:left" class="pure-menu-list">Users
+    <li class="pure-menu-item">anon: asd</li>
+    <li class="pure-menu-item">anon: asd</li>
+    <li class="pure-menu-item">anon: asd</li>
+    <li class="pure-menu-item">anon: asd</li>
+    <li class="pure-menu-item">anon: asd</li></ul>
+    <ul id='score'  style="float:right" class="pure-menu-list">Score
+    <li class="pure-menu-item">anon: asd</li>
+    <li class="pure-menu-item">anon: asd</li>
+    <li class="pure-menu-item">anon: asd</li>
+    <li class="pure-menu-item">anon: asd</li>
+    <li class="pure-menu-item">anon: asd</li></ul>
+    </div>
+    <div id = "chat" class="pure-menu pure-menu-scrollable custom-restricted custom-restricted2" >
         <ul id="messages" class="pure-menu-list" ></ul>
     </div>
     <div class="pure-form" id = "form">
@@ -96,6 +114,7 @@
    </div> </div>
 </script>
 <script src="https://code.jquery.com/jquery-1.8.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 <script src="assets/js/script.js"></script>
 </body>
 </html>
