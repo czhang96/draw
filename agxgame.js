@@ -80,7 +80,7 @@ function gameEnd(data){
 function updateServerChatHistory(data, chat_history){
     io.sockets.in(data.gameID).emit('saveChatHistory',chat_history);
 }
-function startDrawingTimer(gameID){
+function startDrawingTimer(data){
     function startTimer(secs){
         var timeInSecs = parseInt(secs)-1;
         var ticker = setInterval(function(){ tick(); }, 1000);
@@ -88,11 +88,15 @@ function startDrawingTimer(gameID){
             var secs = timeInSecs;
             if (secs>=0) {
             timeInSecs--;
-            io.sockets.in(gameID).emit('updateDrawingTimer',secs);
+            console.log('it is pushing to this room');
+            console.log(data);
+            io.sockets.in(data).emit('updateDrawingTimer',secs);
             }
             else {
             console.log('cleared?');
-            stopTick(); // stop counting at zero
+            stopTick(); 
+            startTimer(30);
+            // stop counting at zero
                 // startTimer(60);  // remove forward slashes in front of startTimer to repeat if required
             }
         }
@@ -101,7 +105,7 @@ function startDrawingTimer(gameID){
         }
     }
 
-    startTimer(5);
+    startTimer(30);
 }
 function updateUserList(data){
     console.log('insideupdateuserlist');
