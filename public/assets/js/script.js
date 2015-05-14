@@ -20,7 +20,7 @@ $(function(){
             IO.socket.on('gameEnded',IO.gameEnded);
             IO.socket.on('saveChatHistory', IO.saveChatHistory);
             IO.socket.on('updateDrawingTimer', IO.updateDrawingTimer);
-            IO.socket.on('renderUserList', IO.renderUserList);
+            IO.socket.on('updateUserPoints', IO.updateUserPoints);
         },
         onConnected: function(){
             App.mySocketID = IO.socket.socket.sessionid;
@@ -54,10 +54,11 @@ $(function(){
         updateDrawingTimer: function(data){
             App.updateDrawingTimer(data);
         },
-        renderUserList: function(data){
-            App.renderUserList(data);
+        updateUserPoints: function(data){
+            App.updateUserPoints(data);
         }
     }
+    var firstCorrectAnswer = true;
     var turn = 0;
     var usersHistory = '';
     var pointsHistory = '';
@@ -67,7 +68,6 @@ $(function(){
         myRole: '',
         myName: '',
         mySocketID:'',
-        myPoints:0,
         players : [],
         clients:{},
         word:"",
@@ -94,7 +94,8 @@ $(function(){
         },
         onCreateClick: function(){
             data={playerName:$('#player_name').val() || 'anon',
-                  myPoints: 0};
+                  myPoints: 0
+                  };
             IO.socket.emit('hostCreateNewGame',data);
         },
         gameInit: function(data){
@@ -126,7 +127,8 @@ $(function(){
             //console.log('onjoinroom');
             var data = {gameID: $('#room_id').val(), 
                         playerName:$('#player_name').val() || 'anon',
-                        myPoints: 0};
+                        myPoints: 0
+                        };
             IO.socket.emit('playerJoinGame',data);
             App.myRole = 'Player';
             App.myName=data.playerName;
@@ -158,9 +160,9 @@ $(function(){
                 $('#instructions').html("<h1>"+App.gameID+"</h1>");
                 $('#room_number_header').html(App.gameID);
                 $('#players_waiting').html("");
+                App.players = data;
                 for (var i = 0 ; i < data.length; i++){
                     $('#players_waiting').append('<p>'+data[i].playerName+'</p>');
-                    App.players.push(data[i]);
                 }
             }
             var userList = "<li class='pure-menu-item'>Users</li>";
@@ -182,10 +184,15 @@ $(function(){
             var chat_message=$('#m').val();
             //console.log(chat_message);
             //console.log(App.word);
-            if (App.gameState == "playing" && chat_message.toUpperCase().indexOf(App.word) != -1 ){
-                //console.log("win");
-                data= {'name':App.myName,'gameID':App.gameID};
-                IO.socket.emit('gameEnd',data);
+            console.log('App.hasAlreadyWon = '+App.hasAlreadyWon);
+            if (App.gameState == "playing" && chat_message.toUpperCase().indexOf(App.word) != -1 && App.gameRole != 'drawer' && !App.hasAlreadyWon){
+                App.hasAlreadyWon = true;
+                data= {name:App.myName, gameID:App.gameID, socketID:App.mySocketID};
+                IO.socket.emit('givePoints',data);
+                return;
+            }
+            if (App.gameState == "playing" && chat_message.toUpperCase().indexOf(App.word) != -1){
+                return;
             }
             var data = { playerName:App.myName,message:chat_message,gameID:App.gameID};
             IO.socket.emit('chatMessage',data);
@@ -205,10 +212,8 @@ $(function(){
             IO.socket.emit('startGame',App.gameID);
         },
         prepareStartGame: function(data){
-            if(App.gameRole == 'drawer'){
-                console.log(App.myName + App.gameRole)
-                console.log(data);
-            }
+            App.hasAlreadyWon = false;
+            firstCorrectAnswer = true;
             //console.log(App.players);
             //console.log(turn);
             $("#main_area").html(App.$game_area);
@@ -232,14 +237,15 @@ $(function(){
             App.cursors = {};
             App.prev = {};
             App.lastEmit = $.now();
+            App.hasAlreadyWon = false;
             App.gameRole = (App.mySocketID==App.players[turn].mySocketID?"drawer":"guesser");
             App.word=data.word;
             App.canvas.on('mousedown',function(e){
                 if(App.gameRole == "drawer"){
-                e.preventDefault();
-                App.drawing = true;
-                App.prev.x = e.pageX;
-                App.prev.y = e.pageY;
+                    e.preventDefault();
+                    App.drawing = true;
+                    App.prev.x = e.pageX;
+                    App.prev.y = e.pageY;
                 }
             });
             App.$doc.bind('mouseup mouseleave',function(){
@@ -266,14 +272,20 @@ $(function(){
                     App.prev.y = e.pageY;
                 }
             });
-            
             if(App.gameRole == "drawer"){
 
                 //console.log("i am the drawer");
                 //console.log(App.word);
-                $("#drawer_word").html("Your Word is: "+App.word);
+                $("#your_role").html("You are the Drawer");
+                $("#drawer_word").html("The Word is: "+App.word);
             }
             if(App.gameRole == "guesser"){
+                var hint = '';
+                for( var i = 0; i < App.word.length; i++){
+                    hint = hint+'_ ';
+                }
+                $("#your_role").html("You are a Guesser");
+                $("#drawer_word").html("Hint "+hint);
                 //console.log("i am the guesser");
                 //console.log("i dont know the word is"+ App.word);
             }
@@ -311,7 +323,6 @@ $(function(){
             //console.log(chatHistory);
             App.gameState = "lobby";
             //console.log("i know who won");
-            console.log('ran twice?');
             IO.socket.emit('startGame',App.gameID);
             //console.log(chatHistory);
             // $("#main_area").html(App.$lobby);
@@ -322,14 +333,44 @@ $(function(){
             }
         },
         updateDrawingTimer: function(data){
-            console.log('received data '+data);
             $('#timer').html(data);            
             if(data == 0)
                 App.gameEnded();
         },
-        renderUserList: function(data){
-            //console.log('inside renderuserList');
-            //console.log(data);
+        updateUserPoints: function(data){
+            App.players[turn].myPoints +=1;
+            for(var i = 0; i < App.players.length; i++){
+                if(App.players[i].mySocketID == data.socketID){
+                    if(firstCorrectAnswer){
+                        App.players[i].myPoints += 5;
+                        firstCorrectAnswer = false;
+                        console.log('foo');
+                        console.log(App.players[i]);
+                        console.log(App.players[i].myPoints);
+                    }
+                    else{
+                        App.players[i].myPoints +=2;
+                    }
+
+                }
+            }
+            console.log('added points');
+            console.log(App.players);
+            //update points in html
+            var userList = "<li class='pure-menu-item'>Users</li>";
+            var pointsList = "<li class='pure-menu-item'>Score</li>";
+            for(var i = 0; i < App.players.length; i++){
+                userList = userList + "<li id='"+App.players[i].playerName+"' class='pure-menu-item'>"+App.players[i].playerName+"</li>";
+                pointsList = pointsList + "<li id='"+App.players[i].playerName+"score' class='pure-menu-item'>"+App.players[i].myPoints+"</li>";
+            }
+            console.log('userlist');
+            console.log(userList);
+            console.log('pointsList');
+            console.log(pointsList);
+            $("#userlist").html(userList);
+            $("#score").html(pointsList);
+            usersHistory = userList;
+            pointsHistory = pointsList;
         }
     }
 

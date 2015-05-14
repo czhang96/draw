@@ -18,7 +18,7 @@ exports.initGame = function(sio,socket,wordList){
     gameSocket.on('gameEnd',gameEnd);
     gameSocket.on('updateServerChatHistory',updateServerChatHistory);
     gameSocket.on('startDrawingTimer', startDrawingTimer);
-    gameSocket.on('updateUserList', updateUserList);
+    gameSocket.on('givePoints', givePoints);
 }
 function randomProperty(object) {
   var keys = Object.keys(object);
@@ -95,7 +95,7 @@ function startDrawingTimer(data){
             else {
             console.log('cleared?');
             stopTick(); 
-            startTimer(30);
+            startTimer(10);
             // stop counting at zero
                 // startTimer(60);  // remove forward slashes in front of startTimer to repeat if required
             }
@@ -105,10 +105,9 @@ function startDrawingTimer(data){
         }
     }
 
-    startTimer(30);
+    startTimer(10);
 }
-function updateUserList(data){
-    console.log('insideupdateuserlist');
-    console.log(data[0].gameID);
-    //io.socket.in(data[0].gameID).emit('renderUserList', data);
+function givePoints(data){
+    console.log(data.gameID);
+    io.sockets.in(data.gameID).emit('updateUserPoints', data);
 }
