@@ -140,7 +140,7 @@ $(function(){
         updatePlayers: function(data){
             if (App.myRole == 'Host'){
                 $('#instructions').html("<h1>"+App.gameID+"</h1>");
-                $('#room_number_header').html(App.gameID);
+                $('#room_number_header').html('Game ID: '+ App.gameID);
                 $('#players_waiting').append('<p>'+data.playerName+'</p>');
                 App.players.push(data);
                 IO.socket.emit('updatePlayerPlayersServer',App.players);
@@ -158,7 +158,7 @@ $(function(){
                     }
                 });
                 $('#instructions').html("<h1>"+App.gameID+"</h1>");
-                $('#room_number_header').html(App.gameID);
+                $('#room_number_header').html('Game ID: '+ App.gameID);
                 $('#players_waiting').html("");
                 App.players = data;
                 for (var i = 0 ; i < data.length; i++){
