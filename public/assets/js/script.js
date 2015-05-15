@@ -3,8 +3,9 @@ $(function(){
     var IO = {
 
         init : function(){
-            //var url = "http://localhost:5000";
-            var url = 'https://morning-mesa-9007.herokuapp.com/';
+            var url = "http://localhost:5000";
+            //var url = 'https://morning-mesa-9007.herokuapp.com/';
+            //var url = 'https://ancient-fjord-8441.herokuapp.com';
             IO.socket = io.connect(url);
             IO.bindEvents();
 
@@ -12,7 +13,7 @@ $(function(){
         bindEvents: function(){
             IO.socket.on('connected', IO.onConnected );
             IO.socket.on('newGameCreated',IO.onNewGameCreated);
-            IO.socket.on('playerJoinedRoom',IO.playerJoinedRoom);
+            IO.socket.on('playerJoinedRoom',IO.onplayerJoinedRoom);
             IO.socket.on('updatePlayerPlayers',IO.updatePlayerPlayers);
             IO.socket.on('newChatMessage',IO.newChatMessage);
             IO.socket.on('prepareStartGame',IO.prepareStartGame);
@@ -29,7 +30,7 @@ $(function(){
         onNewGameCreated: function(data){
             App.gameInit(data);
         },
-        playerJoinedRoom: function(data){
+        onplayerJoinedRoom: function(data){
             App.updatePlayers(data);
         },
         updatePlayerPlayers: function(data){
@@ -49,14 +50,14 @@ $(function(){
         },
         saveChatHistory: function(data){
             chatHistory = data;
-            //console.log(chatHistory);
+            ////console.log(chatHistory);
         },
         updateDrawingTimer: function(data){
             App.updateDrawingTimer(data);
         },
         updateUserPoints: function(data){
             App.updateUserPoints(data);
-        }
+        },
     }
     var firstCorrectAnswer = true;
     var turn = 0;
@@ -110,7 +111,7 @@ $(function(){
             $('#instructions').html("<h1>"+App.gameID+"</h1>");
             $('#room_number_header').html('Game ID: '+ App.gameID);
             $('#players_waiting').append('<p>'+data.playerName+'</p>');
-            //console.log(data);
+            ////console.log(data);
             App.players.push(data);
             $("#chat_area").html(App.$chat_template);
             $('#messages').append(chatHistory);
@@ -124,7 +125,7 @@ $(function(){
         
         },
         onJoinRoom: function(){
-            //console.log('onjoinroom');
+            ////console.log('onjoinroom');
             var data = {gameID: $('#room_id').val(), 
                         playerName:$('#player_name').val() || 'anon',
                         myPoints: 0
@@ -134,7 +135,7 @@ $(function(){
             App.myName=data.playerName;
             App.gameID=data.gameID;
             App.myPoints=0;
-            //console.log(data);
+            ////console.log(data);
             
         },
         updatePlayers: function(data){
@@ -171,9 +172,9 @@ $(function(){
                 userList = userList + "<li id='"+data[i].playerName+"' class='pure-menu-item'>"+data[i].playerName+"</li>";
                 pointsList = pointsList + "<li id='"+data[i].playerName+"score' class='pure-menu-item'>"+data[i].myPoints+"</li>";
             }
-            //console.log(data);
-            //console.log(userList);
-            //console.log(pointsList);
+            ////console.log(data);
+            ////console.log(userList);
+            ////console.log(pointsList);
             $("#userlist").html(userList);
             $("#score").html(pointsList);
             usersHistory = userList;
@@ -182,9 +183,9 @@ $(function(){
         },
         sendMessage: function(){
             var chat_message=$('#m').val();
-            //console.log(chat_message);
-            //console.log(App.word);
-            console.log('App.hasAlreadyWon = '+App.hasAlreadyWon);
+            ////console.log(chat_message);
+            ////console.log(App.word);
+            //console.log('App.hasAlreadyWon = '+App.hasAlreadyWon);
             if (App.gameState == "playing" && chat_message.toUpperCase().indexOf(App.word) != -1 && App.gameRole != 'drawer' && !App.hasAlreadyWon){
                 $("#drawer_word").html("You Guessed the Right Word: "+App.word);
                 App.hasAlreadyWon = true;
@@ -203,20 +204,20 @@ $(function(){
             $('#messages').append($('<li class="pure-menu-item">').text(data.playerName+": "+data.message));
             App.$cont[0].scrollTop = App.$cont[0].scrollHeight;
             App.$cont[0].scrollTop = App.$cont[0].scrollHeight;
-            //console.log('chat data data');
-            //console.log(data);
+            ////console.log('chat data data');
+            ////console.log(data);
             IO.socket.emit('updateServerChatHistory', data, $('#messages').html());
         },
         startGame: function(){
-            //console.log(App.gameID);
+            ////console.log(App.gameID);
             IO.socket.emit('startDrawingTimer', App.gameID, false);
             IO.socket.emit('startGame',App.gameID);
         },
         prepareStartGame: function(data){
             App.hasAlreadyWon = false;
             firstCorrectAnswer = true;
-            //console.log(App.players);
-            //console.log(turn);
+            ////console.log(App.players);
+            ////console.log(turn);
             $("#main_area").html(App.$game_area);
             $("#chat_area").html(App.$chat_template);
             $('#messages').append(chatHistory);
@@ -241,6 +242,7 @@ $(function(){
             App.hasAlreadyWon = false;
             App.gameRole = (App.mySocketID==App.players[turn].mySocketID?"drawer":"guesser");
             App.word=data.word;
+            $("#current-word").html((App.gameRole=="drawer")?"Word: "+App.word:"");
             App.canvas.on('mousedown',function(e){
                 if(App.gameRole == "drawer"){
                     e.preventDefault();
@@ -275,17 +277,17 @@ $(function(){
             });
             if(App.gameRole == "drawer"){
 
-                //console.log("i am the drawer");
-                //console.log(App.word);
+                ////console.log("i am the drawer");
+                ////console.log(App.word);
                 $("#your_role").html("You are the Drawer");
                 $("#drawer_word").html("The Word is: "+App.word);
             }
             if(App.gameRole == "guesser"){
                 var hint = '&nbsp;&nbsp;';
                 for( var i = 0; i < App.word.length; i++){
-                    console.log(App.word[i]);
+                    //console.log(App.word[i]);
                     	if(App.word[i]==' '){
-                            console.log(true);
+                            //console.log(true);
             			   hint = hint + '&nbsp;&nbsp;&nbsp;';
                         }
             			else
@@ -293,10 +295,10 @@ $(function(){
                 }
                 $("#your_role").html("You are a Guesser");
                 $("#drawer_word").html("Hint "+hint);
-                //console.log("i am the guesser");
-                //console.log("i dont know the word is"+ App.word);
+                ////console.log("i am the guesser");
+                ////console.log("i dont know the word is"+ App.word);
             }
-            //console.log('bar');
+            ////console.log('bar');
         },
 
         moving: function (data) {
@@ -321,21 +323,21 @@ $(function(){
             App.ctx.stroke();
         },
         gameEnded: function(data){
-            //console.log('all players list');
-            //console.log(App.players);
+            ////console.log('all players list');
+            ////console.log(App.players);
             if(turn < App.players.length -1)
                 turn++;
             else
                 turn = 0;
-            //console.log(chatHistory);
+            ////console.log(chatHistory);
             App.gameState = "lobby";
-            //console.log("i know who won");
+            ////console.log("i know who won");
             IO.socket.emit('startGame',App.gameID);
-            //console.log(chatHistory);
+            ////console.log(chatHistory);
             // $("#main_area").html(App.$lobby);
             // $('#instructions').html("<h1>"+App.gameID+"</h1><h2>Winner: "+data+"</h2");
             for (var i  = 0 ; i < App.players.length ; i ++ ){
-                //console.log(App.players);
+                ////console.log(App.players);
                 $('#players_waiting').append('<p>'+App.players[i].playerName+'</p>');
             }
         },
@@ -351,9 +353,9 @@ $(function(){
                     if(firstCorrectAnswer){
                         App.players[i].myPoints += 5;
                         firstCorrectAnswer = false;
-                        console.log('foo');
-                        console.log(App.players[i]);
-                        console.log(App.players[i].myPoints);
+                        //console.log('foo');
+                        //console.log(App.players[i]);
+                        //console.log(App.players[i].myPoints);
                     }
                     else{
                         App.players[i].myPoints +=2;
@@ -361,8 +363,8 @@ $(function(){
 
                 }
             }
-            console.log('added points');
-            console.log(App.players);
+            //console.log('added points');
+            //console.log(App.players);
             //update points in html
             var userList = "<li class='pure-menu-item'>Users</li>";
             var pointsList = "<li class='pure-menu-item'>Score</li>";
@@ -370,10 +372,10 @@ $(function(){
                 userList = userList + "<li id='"+App.players[i].playerName+"' class='pure-menu-item'>"+App.players[i].playerName+"</li>";
                 pointsList = pointsList + "<li id='"+App.players[i].playerName+"score' class='pure-menu-item'>"+App.players[i].myPoints+"</li>";
             }
-            console.log('userlist');
-            console.log(userList);
-            console.log('pointsList');
-            console.log(pointsList);
+            //console.log('userlist');
+            //console.log(userList);
+            //console.log('pointsList');
+            //console.log(pointsList);
             $("#userlist").html(userList);
             $("#score").html(pointsList);
             usersHistory = userList;

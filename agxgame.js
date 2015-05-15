@@ -34,14 +34,15 @@ function hostCreateNewGame(data){
 	this.join(gameID.toString());
 }
 function playerJoinGame(data) {
-   console.log('joined game');
+   //console.log('joined game');
     var sock = this;
     var room = gameSocket.manager.rooms["/" + data.gameID];
     var gameID = data.gameID;
-    console.log(gameSocket.manager.rooms["/" + data.gameID]);
+    //console.log(gameSocket.manager.rooms["/" + data.gameID]);
     if( room != undefined ){
         data.mySocketID = sock.id;
         sock.join(data.gameID);
+        this.emit('displayNewGameScreen',data)
         io.sockets.in(data.gameID).emit('playerJoinedRoom', data);
 
     } else {
@@ -50,7 +51,7 @@ function playerJoinGame(data) {
     if (rooms[gameID] == undefined){
         rooms[gameID] = "waiting";
     }
-    console.log(rooms);
+    //console.log(rooms);
     if (rooms[gameID]=="playing"){
         this.emit('prepareStartGame',{id:"not_you",word:""});
     }
@@ -62,7 +63,7 @@ function chatMessage(chat_data) {
    	io.sockets.in(chat_data.gameID).emit('newChatMessage',chat_data);
 }
 function startGame(data) {
-    console.log(data);
+    //console.log(data);
     io.sockets.in(data).emit('prepareStartGame',
                             {id:io.sockets.clients(data)[Math.floor(io.sockets.clients(data).length * Math.random())].id,
                             word:words.arr[Math.floor(words.arr.length * Math.random())]});
@@ -73,7 +74,7 @@ function mousemove(data){
 }
 function gameEnd(data){
     //{winner_name}
-    console.log(data);
+    //console.log(data);
     rooms[data.gameID]="waiting";
     io.sockets.in(data.gameID).emit('gameEnded',data.name);
 }
@@ -88,12 +89,12 @@ function startDrawingTimer(data){
             var secs = timeInSecs;
             if (secs>=0) {
             timeInSecs--;
-            console.log('it is pushing to this room');
-            console.log(data);
+            //console.log('it is pushing to this room');
+            //console.log(data);
             io.sockets.in(data).emit('updateDrawingTimer',secs);
             }
             else {
-            console.log('cleared?');
+            //console.log('cleared?');
             stopTick(); 
             startTimer(40);
             // stop counting at zero
@@ -108,6 +109,6 @@ function startDrawingTimer(data){
     startTimer(40);
 }
 function givePoints(data){
-    console.log(data.gameID);
+    //console.log(data.gameID);
     io.sockets.in(data.gameID).emit('updateUserPoints', data);
 }
