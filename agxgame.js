@@ -95,7 +95,7 @@ function startDrawingTimer(data){
             else {
             console.log('cleared?');
             stopTick(); 
-            startTimer(10);
+            startTimer(40);
             // stop counting at zero
                 // startTimer(60);  // remove forward slashes in front of startTimer to repeat if required
             }
@@ -105,7 +105,7 @@ function startDrawingTimer(data){
         }
     }
 
-    startTimer(10);
+    startTimer(40);
 }
 function givePoints(data){
     console.log(data.gameID);

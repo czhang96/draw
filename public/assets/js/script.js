@@ -3,8 +3,8 @@ $(function(){
     var IO = {
 
         init : function(){
-            var url = "http://localhost:6782";
-            //var url = 'https://ancient-fjord-8441.herokuapp.com';
+            //var url = "http://localhost:5000";
+            var url = 'https://morning-mesa-9007.herokuapp.com/';
             IO.socket = io.connect(url);
             IO.bindEvents();
 
@@ -186,6 +186,7 @@ $(function(){
             //console.log(App.word);
             console.log('App.hasAlreadyWon = '+App.hasAlreadyWon);
             if (App.gameState == "playing" && chat_message.toUpperCase().indexOf(App.word) != -1 && App.gameRole != 'drawer' && !App.hasAlreadyWon){
+                $("#drawer_word").html("You Guessed the Right Word: "+App.word);
                 App.hasAlreadyWon = true;
                 data= {name:App.myName, gameID:App.gameID, socketID:App.mySocketID};
                 IO.socket.emit('givePoints',data);
@@ -280,9 +281,15 @@ $(function(){
                 $("#drawer_word").html("The Word is: "+App.word);
             }
             if(App.gameRole == "guesser"){
-                var hint = '';
+                var hint = '&nbsp;&nbsp;';
                 for( var i = 0; i < App.word.length; i++){
-                    hint = hint+'_ ';
+                    console.log(App.word[i]);
+                    	if(App.word[i]==' '){
+                            console.log(true);
+            			   hint = hint + '&nbsp;&nbsp;&nbsp;';
+                        }
+            			else
+            			   hint = hint+'_ ';
                 }
                 $("#your_role").html("You are a Guesser");
                 $("#drawer_word").html("Hint "+hint);

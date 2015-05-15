@@ -239,7 +239,7 @@ a.pure-button-primary {
 }
 .custom-restricted {
     text-align:left;
-    height:600px;
+    height:350px;
     width: 100%;
     border: 1px solid gray;
     border-radius: 4px;
@@ -323,7 +323,7 @@ a.pure-button-primary {
     }   
     .custom-restricted3 {
 
-        height:250px;
+        height:150px;
 
     }   
 }
