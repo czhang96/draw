@@ -23,18 +23,19 @@ fs.readFile('words.json', 'utf8', function (err, data) {
 server.listen(process.env.PORT || 5000);
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
+
+app.set('views','./views');
+app.set('view engine','jade');
 app.get('/', function(req, res) {
   res.sendfile('index.html');
 });
 app.get('/words', function(req, res) {
   res.sendfile('assets/img/words.txt');
 });
-// app.get('/:id', function(req,res) {
-//   if (req.params.id=="foo"){
-//   	res.sendfile('index.html');
-//   }
-// });
-//
+app.get('/g/:id', function(req,res) {
+  res.send("<p>Feature currently in development");
+});
+
 io.on('connection', function(socket){
 	game.initGame(io,socket,wordList);
 });
