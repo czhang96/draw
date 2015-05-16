@@ -331,7 +331,51 @@ label {
     }   
     .custom-restricted3 {
 
-        height:150px;
+        height:250px;
+
+    }
+@media (max-height: 54em) {
+    /* We increase the header font size even more */
+    .custom-restricted2 {
+
+        height:325px;
 
     }   
+    .custom-restricted3 {
+
+        height:235px;
+
+    }
+@media (max-height: 45em){
+    .custom-restricted2 {
+        height:275px;
+
+    }   
+    .custom-restricted3 {
+        margin-top:50px;
+        height:175px;
+
+    }
+}   
+@media (max-height: 37em){
+    .custom-restricted2 {
+        height:200px;
+
+    }   
+    .custom-restricted3 {
+        margin-top:80px;
+        height:150px;
+
+    }
+}
+@media (max-height: 37em){
+    .custom-restricted2 {
+        height:175px;
+
+    }   
+    .custom-restricted3 {
+        margin-top:80px;
+        height:125px;
+
+    } 
 }
