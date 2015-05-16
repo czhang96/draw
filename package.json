@@ -8,12 +8,13 @@
   },
   "dependencies": {
     "express": "~4.9.x",
+    "jade": "^1.9.2",
     "node-static": "^0.7.6",
     "socket.io": "~0.9.10"
   },
   "engines": {
     "node": "0.12.x"
- },
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/heroku/node-js-getting-started"

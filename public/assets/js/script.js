@@ -3,8 +3,8 @@ $(function(){
     var IO = {
 
         init : function(){
-            //var url = "http://localhost:5000";
-            var url = 'https://draw-prototype.herokuapp.com/';
+            var url = "http://localhost:5000";
+            //var url = 'https://draw-prototype.herokuapp.com/';
             //var url = 'https://ancient-fjord-8441.herokuapp.com';
             IO.socket = io.connect(url);
             IO.bindEvents();
@@ -108,11 +108,8 @@ $(function(){
         },
         displayNewGameScreen : function(data){
             $('#main_area').html(App.$lobby);
-            $('#instructions').html("<h1>"+App.gameID+"</h1>");
+            $('#instructions').html("<h1>Game ID: "+App.gameID+"</h1><p>Give your friends this ID to join or this <a href='http://draw-prototype.herokuapp.com/g/"+App.gameID+"'>link</a></p><h1>Users</h1>");
             $('#room_number_header').html('Game ID: '+ App.gameID);
-            $('#players_waiting').append('<p>'+data.playerName+'</p>');
-            ////console.log(data);
-            App.players.push(data);
             $("#chat_area").html(App.$chat_template);
             $('#messages').append(chatHistory);
             App.$cont = $('#chat');
@@ -122,6 +119,7 @@ $(function(){
                     
                 }
             });
+
         
         },
         onJoinRoom: function(){
@@ -140,8 +138,6 @@ $(function(){
         },
         updatePlayers: function(data){
             if (App.myRole == 'Host'){
-                $('#instructions').html("<h1>"+App.gameID+"</h1>");
-                $('#room_number_header').html('Game ID: '+ App.gameID);
                 $('#players_waiting').append('<p>'+data.playerName+'</p>');
                 App.players.push(data);
                 IO.socket.emit('updatePlayerPlayersServer',App.players);
@@ -158,8 +154,6 @@ $(function(){
                         $("#send_message").click();    
                     }
                 });
-                $('#instructions').html("<h1>"+App.gameID+"</h1>");
-                $('#room_number_header').html('Game ID: '+ App.gameID);
                 $('#players_waiting').html("");
                 App.players = data;
                 for (var i = 0 ; i < data.length; i++){
@@ -223,7 +217,7 @@ $(function(){
             $('#messages').append(chatHistory);
             $("#userlist").html(usersHistory);
             $("#score").html(pointsHistory);
-
+           
             App.$cont = $('#chat');
             $("#m").keyup(function(event){
                 if(event.keyCode == 13){
@@ -234,6 +228,17 @@ $(function(){
             App.gameState = "playing";
             App.drawing = false;
             App.canvas = $('#paper');
+            App.canvas[0].width=window.innerWidth;
+            App.canvas[0].height=window.innerHeight;
+            App.temp_canvas = $('#temp_canvas');
+             window.addEventListener('resize',function(){
+                App.temp_canvas[0].width = App.canvas[0].width;
+                App.temp_canvas[0].height = App.canvas[0].height;
+                App.temp_canvas[0].getContext('2d').drawImage(App.canvas[0],0,0);
+                App.canvas[0].width=window.innerWidth;
+                App.canvas[0].height=window.innerHeight;
+                App.canvas[0].getContext('2d').drawImage(App.temp_canvas[0],0,0,App.temp_canvas[0].width,App.temp_canvas[0].height);
+            },false);
             App.ctx = App.canvas[0].getContext('2d');
             App.clients = {};
             App.cursors = {};

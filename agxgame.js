@@ -32,6 +32,7 @@ function hostCreateNewGame(data){
 	data.mySocketID = this.id;
 	this.emit('newGameCreated',data);
 	this.join(gameID.toString());
+    this.emit('playerJoinedRoom', data);
 }
 function playerJoinGame(data) {
    //console.log('joined game');

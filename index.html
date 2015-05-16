@@ -16,7 +16,7 @@
         <link rel="stylesheet" href="css/layouts/marketing-old-ie.css">
     <![endif]-->
     <!--[if gt IE 8]><!-->
-        <link rel="stylesheet" href="assets/css/styles1.css">
+        <link rel="stylesheet" href="assets/css/styles.css">
     <!--<![endif]-->
 <script src="/socket.io/socket.io.js"></script>
 </head>
@@ -32,20 +32,20 @@
     <div id = "main_area"  class = "splash">
        <div class= "pure-g">
             <div class = "pure-u-9-24"></div>
-            <div class = "pure-u-1-4"style= "border: 1px solid black; padding: 10px 10px 45px 10px; background: #1f8dd6;">
+            <div class = "pure-u-1-4"style= "border: 1px solid black; padding: 10px 10px 45px 10px; background: #2d3e50;">
         <div id = "instruction">
-            <h1>Play now!</h1>
+            <h1 class = "splash_titles">Play now!</h1>
             <input class="splash-head" id = "player_name" type="text" placeholder="Your Name">
 
             <p>
-                <a  id = "create_room" class="pure-button pure-button-primary">Create Room</a>
+                <button  id = "create_room" class="pure-button pure-button-primary">Create Room</button>
             </p>
             <p class="splash-subhead">
                 OR
             </p>
-            <input class="splash-head" id="room_id" type="text" placeholder="Room ID">
+            <input class="splash-head" id="room_id" type="text" placeholder="Game ID">
             <p>
-                <a id = "join_room" class="pure-button pure-button-primary">Join Game</a>
+                <button id = "join_room" class="pure-button pure-button-primary">Join Game</button>
             </p>
              </div>
 
@@ -61,7 +61,7 @@
             <div class = "pure-u-1-4">
                 <div id="instructions" >
                 </div>
-                <p id = "players_waiting"></p> <a id = "start_game" class="pure-button pure-button-primary" >Start game! </a>
+                <p id = "players_waiting"></p> <button id = "start_game" class="pure-button pure-button-primary" >Start game! </button>
             </div>
             <div class = "pure-u-4-24"></div>
             <div class ="pure-u-5-24">
@@ -79,9 +79,10 @@
                 <div id='your_role'></div>
                 <div id='drawer_word'></div>
                 </div>
-                <canvas id="paper" style= "position:fixed;top:0;left:0;" width="1900" height="1000">
+                <canvas id="paper" style= "position:fixed;top:0;left:0;">
                     Your browser needs to support canvas for this to work!
                 </canvas>
+                <canvas id ="temp_canvas"></canvas>
             </div>
         <div class ="pure-u-5-24">
             <div id = "chat_area" ></div>
