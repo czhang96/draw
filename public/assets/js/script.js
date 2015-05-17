@@ -64,7 +64,7 @@ $(function(){
         },
     }
     var ticker;
-    var turnLength = 30;
+    var turnLength = 10;
     var firstCorrectAnswer = true;
     var turn = 0;
     var usersHistory = '';
@@ -170,9 +170,10 @@ $(function(){
             }
             var userList = "<li class='pure-menu-item'>Users</li>";
             var pointsList = "<li class='pure-menu-item'>Score</li>";
+            console.log(data);
             for(var i = 0; i < data.length; i++){
-                userList = userList + "<li id='"+data[i].playerName+"' class='pure-menu-item'>"+data[i].playerName+"</li>";
-                pointsList = pointsList + "<li id='"+data[i].playerName+"score' class='pure-menu-item'>"+data[i].myPoints+"</li>";
+                userList = userList + "<li id='user"+data[i].mySocketID+"' class='pure-menu-item'>"+data[i].playerName+"</li>";
+                pointsList = pointsList + "<li id='"+data[i].mySocketID+"score' class='pure-menu-item'>"+data[i].myPoints+"</li>";
             }
             //console.log(data);
             //console.log(userList);
@@ -228,7 +229,6 @@ $(function(){
             $('#messages').append(chatHistory);
             $("#userlist").html(usersHistory);
             $("#score").html(pointsHistory);
-           
             App.$cont = $('#chat');
             $("#m").keyup(function(event){
                 if(event.keyCode == 13){
@@ -313,6 +313,7 @@ $(function(){
                 //console.log("i am the guesser");
                 //console.log("i dont know the word is"+ App.word);
             }
+            $("#user"+App.players[turn].mySocketID).html(App.players[turn].playerName+' (drawer)');
             //console.log('bar');
         },
 
@@ -337,6 +338,15 @@ $(function(){
             App.ctx.stroke();
         },
         gameEnded: function(data){
+            //update points
+            var userList = "<li class='pure-menu-item'>Users</li>";
+            var pointsList = "<li class='pure-menu-item'>Score</li>";
+            for(var i = 0; i < App.players.length; i++){
+                userList = userList + "<li id='user"+App.players[i].mySocketID+"' class='pure-menu-item'>"+App.players[i].playerName+"</li>";
+                pointsList = pointsList + "<li id='"+App.players[i].mySocketID+"score' class='pure-menu-item'>"+App.players[i].myPoints+"</li>";
+            }
+            usersHistory = userList;
+            pointsHistory = pointsList;
             //console.log('all players list');
             //console.log(App.players);
             if(turn < App.players.length -1)
@@ -385,12 +395,14 @@ $(function(){
         updateTimer: function(secs){
             $('#timer').html(secs);  
             if(secs == 0){
+                if(App.players[turn].hasAlreadyWon == false)
+                    App.players[turn].myPoints -=2;
                 App.gameEnded();
             }          
         },
         updateUserPoints: function(data){
-            App.players[turn].hasAlreadyWon = true;
             App.players[turn].myPoints +=1;
+            App.players[turn].hasAlreadyWon = true;
             for(var i = 0; i < App.players.length; i++){
                 if(App.players[i].mySocketID == data.socketID){
                     if(firstCorrectAnswer){
@@ -401,26 +413,15 @@ $(function(){
                         App.players[i].myPoints +=2;
                     }
                     App.players[i].hasAlreadyWon = true;
+                    $("#user"+App.players[i].mySocketID).html(App.players[i].playerName+' (&#10004)');
+                    $("#"+App.players[i].mySocketID+'score').html(App.players[i].myPoints);
+                    $("#"+App.players[turn].mySocketID+'score').html(App.players[turn].myPoints);
+
                 }
             }
 
             //console.log('added points');
             //console.log(App.players);
-            //update points in html
-            var userList = "<li class='pure-menu-item'>Users</li>";
-            var pointsList = "<li class='pure-menu-item'>Score</li>";
-            for(var i = 0; i < App.players.length; i++){
-                userList = userList + "<li id='"+App.players[i].playerName+"' class='pure-menu-item'>"+App.players[i].playerName+"</li>";
-                pointsList = pointsList + "<li id='"+App.players[i].playerName+"score' class='pure-menu-item'>"+App.players[i].myPoints+"</li>";
-            }
-            //console.log('userlist');
-            //console.log(userList);
-            //console.log('pointsList');
-            //console.log(pointsList);
-            $("#userlist").html(userList);
-            $("#score").html(pointsList);
-            usersHistory = userList;
-            pointsHistory = pointsList;
             for(i = 0; i<App.players.length; i ++){
                 if(App.players[i].hasAlreadyWon == false)
                     return;
