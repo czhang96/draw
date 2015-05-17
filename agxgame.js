@@ -41,6 +41,9 @@ function playerJoinGame(data) {
     var room = gameSocket.manager.rooms["/" + data.gameID];
     var gameID = data.gameID;
     //console.log(gameSocket.manager.rooms["/" + data.gameID]);
+    if (rooms[gameID]=="playing"){
+        return;
+    }
     if( room != undefined ){
         data.mySocketID = sock.id;
         sock.join(data.gameID);
@@ -54,9 +57,6 @@ function playerJoinGame(data) {
         rooms[gameID] = "waiting";
     }
     //console.log(rooms);
-    if (rooms[gameID]=="playing"){
-        this.emit('prepareStartGame',{id:"not_you",word:""});
-    }
 }
 function updatePlayerPlayersServer(data) {
    	io.sockets.in(data[0].gameID).emit('updatePlayerPlayers',data);

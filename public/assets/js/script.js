@@ -3,8 +3,8 @@ $(function(){
     var IO = {
 
         init : function(){
-            var url = "http://localhost:5000";
-            //var url = 'https://draw-prototype.herokuapp.com/';
+            //var url = "http://localhost:5000";
+            var url = 'https://draw-prototype.herokuapp.com/';
             //var url = 'https://ancient-fjord-8441.herokuapp.com';
             IO.socket = io.connect(url);
             IO.bindEvents();
@@ -64,7 +64,7 @@ $(function(){
         },
     }
     var ticker;
-    var turnLength = 10;
+    var turnLength = 40;
     var firstCorrectAnswer = true;
     var turn = 0;
     var usersHistory = '';
@@ -170,7 +170,6 @@ $(function(){
             }
             var userList = "<li class='pure-menu-item'>Users</li>";
             var pointsList = "<li class='pure-menu-item'>Score</li>";
-            console.log(data);
             for(var i = 0; i < data.length; i++){
                 userList = userList + "<li id='user"+data[i].mySocketID+"' class='pure-menu-item'>"+data[i].playerName+"</li>";
                 pointsList = pointsList + "<li id='"+data[i].mySocketID+"score' class='pure-menu-item'>"+data[i].myPoints+"</li>";
@@ -419,9 +418,6 @@ $(function(){
 
                 }
             }
-
-            //console.log('added points');
-            //console.log(App.players);
             for(i = 0; i<App.players.length; i ++){
                 if(App.players[i].hasAlreadyWon == false)
                     return;
