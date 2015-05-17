@@ -20,7 +20,8 @@ $(function(){
             IO.socket.on('isMoving',IO.isMoving);
             IO.socket.on('gameEnded',IO.gameEnded);
             IO.socket.on('saveChatHistory', IO.saveChatHistory);
-            IO.socket.on('updateDrawingTimer', IO.updateDrawingTimer);
+            IO.socket.on('startTimer', IO.startTimer);
+            IO.socket.on('updateTimer', IO.updateTimer);
             IO.socket.on('updateUserPoints', IO.updateUserPoints);
         },
         onConnected: function(){
@@ -50,15 +51,20 @@ $(function(){
         },
         saveChatHistory: function(data){
             chatHistory = data;
-            ////console.log(chatHistory);
+            //console.log(chatHistory);
         },
-        updateDrawingTimer: function(data){
-            App.updateDrawingTimer(data);
+        startTimer: function(turnLength, start){
+            App.startTimer(turnLength, start);
+        },
+        updateTimer: function(secs){
+            App.updateTimer(secs);
         },
         updateUserPoints: function(data){
             App.updateUserPoints(data);
         },
     }
+    var ticker;
+    var turnLength = 30;
     var firstCorrectAnswer = true;
     var turn = 0;
     var usersHistory = '';
@@ -95,7 +101,8 @@ $(function(){
         },
         onCreateClick: function(){
             data={playerName:$('#player_name').val() || 'anon',
-                  myPoints: 0
+                  myPoints: 0,
+                  hasAlreadyWon: false,
                   };
             IO.socket.emit('hostCreateNewGame',data);
         },
@@ -123,17 +130,18 @@ $(function(){
         
         },
         onJoinRoom: function(){
-            ////console.log('onjoinroom');
+            //console.log('onjoinroom');
             var data = {gameID: $('#room_id').val(), 
                         playerName:$('#player_name').val() || 'anon',
-                        myPoints: 0
+                        myPoints: 0,
+                        hasAlreadyWon: false,
                         };
             IO.socket.emit('playerJoinGame',data);
             App.myRole = 'Player';
             App.myName=data.playerName;
             App.gameID=data.gameID;
             App.myPoints=0;
-            ////console.log(data);
+            //console.log(data);
             
         },
         updatePlayers: function(data){
@@ -166,9 +174,9 @@ $(function(){
                 userList = userList + "<li id='"+data[i].playerName+"' class='pure-menu-item'>"+data[i].playerName+"</li>";
                 pointsList = pointsList + "<li id='"+data[i].playerName+"score' class='pure-menu-item'>"+data[i].myPoints+"</li>";
             }
-            ////console.log(data);
-            ////console.log(userList);
-            ////console.log(pointsList);
+            //console.log(data);
+            //console.log(userList);
+            //console.log(pointsList);
             $("#userlist").html(userList);
             $("#score").html(pointsList);
             usersHistory = userList;
@@ -177,8 +185,8 @@ $(function(){
         },
         sendMessage: function(){
             var chat_message=$('#m').val();
-            ////console.log(chat_message);
-            ////console.log(App.word);
+            //console.log(chat_message);
+            //console.log(App.word);
             //console.log('App.hasAlreadyWon = '+App.hasAlreadyWon);
             if (App.gameState == "playing" && chat_message.toUpperCase().indexOf(App.word) != -1 && App.gameRole != 'drawer' && !App.hasAlreadyWon){
                 $("#drawer_word").html("You Guessed the Right Word: "+App.word);
@@ -198,20 +206,23 @@ $(function(){
             $('#messages').append($('<li class="pure-menu-item">').text(data.playerName+": "+data.message));
             App.$cont[0].scrollTop = App.$cont[0].scrollHeight;
             App.$cont[0].scrollTop = App.$cont[0].scrollHeight;
-            ////console.log('chat data data');
-            ////console.log(data);
+            //console.log('chat data data');
+            //console.log(data);
             IO.socket.emit('updateServerChatHistory', data, $('#messages').html());
         },
         startGame: function(){
-            ////console.log(App.gameID);
-            IO.socket.emit('startDrawingTimer', App.gameID, false);
+            //console.log(App.gameID);
+            IO.socket.emit('startDrawingTimer', App.gameID, turnLength, true);
             IO.socket.emit('startGame',App.gameID);
         },
         prepareStartGame: function(data){
+            //console.log(App.players);
+            //console.log(turn);
             App.hasAlreadyWon = false;
             firstCorrectAnswer = true;
-            ////console.log(App.players);
-            ////console.log(turn);
+            for(var i = 0; i < App.players.length; i++){
+                App.players[i].hasAlreadyWon = false;
+            }
             $("#main_area").html(App.$game_area);
             $("#chat_area").html(App.$chat_template);
             $('#messages').append(chatHistory);
@@ -281,9 +292,8 @@ $(function(){
                 }
             });
             if(App.gameRole == "drawer"){
-
-                ////console.log("i am the drawer");
-                ////console.log(App.word);
+                //console.log("i am the drawer");
+                //console.log(App.word);
                 $("#your_role").html("You are the Drawer");
                 $("#drawer_word").html("The Word is: "+App.word);
             }
@@ -300,14 +310,13 @@ $(function(){
                 }
                 $("#your_role").html("You are a Guesser");
                 $("#drawer_word").html("Hint "+hint);
-                ////console.log("i am the guesser");
-                ////console.log("i dont know the word is"+ App.word);
+                //console.log("i am the guesser");
+                //console.log("i dont know the word is"+ App.word);
             }
-            ////console.log('bar');
+            //console.log('bar');
         },
 
         moving: function (data) {
-
             if(! (data.id in App.clients)){
                 App.cursors[data.id] = $('<div class="cursor">').appendTo('#cursors');
             }
@@ -328,46 +337,73 @@ $(function(){
             App.ctx.stroke();
         },
         gameEnded: function(data){
-            ////console.log('all players list');
-            ////console.log(App.players);
+            //console.log('all players list');
+            //console.log(App.players);
             if(turn < App.players.length -1)
                 turn++;
             else
                 turn = 0;
-            ////console.log(chatHistory);
+            //console.log(chatHistory);
             App.gameState = "lobby";
-            ////console.log("i know who won");
-            IO.socket.emit('startGame',App.gameID);
-            ////console.log(chatHistory);
+            //console.log("i know who won");
+            if(App.myRole == 'Host')
+                IO.socket.emit('startGame',App.gameID);
+            //console.log(chatHistory);
             // $("#main_area").html(App.$lobby);
             // $('#instructions').html("<h1>"+App.gameID+"</h1><h2>Winner: "+data+"</h2");
             for (var i  = 0 ; i < App.players.length ; i ++ ){
-                ////console.log(App.players);
+                //console.log(App.players);
                 $('#players_waiting').append('<p>'+App.players[i].playerName+'</p>');
             }
         },
-        updateDrawingTimer: function(data){
-            $('#timer').html(data);            
-            if(data == 0)
+        startTimer: function(turnLength, start){
+            if(App.myRole == 'Host'){
+                if(!start){
+                    clearInterval(ticker);
+                }
+                var timeInSecs = parseInt(turnLength);
+                ticker = setInterval(function(){ tick(); }, 1000);
+                function tick() {
+                    var secs = timeInSecs;
+                    if (secs>=0) {
+                    timeInSecs--;
+                    IO.socket.emit('broadcastTimer', App.gameID, secs);
+                    //console.log('it is pushing to this room');
+                    //console.log(data);
+                    }
+                    else {
+                    //console.log('cleared?');
+                    clearInterval(ticker);
+                    App.startTimer(turnLength, true);
+                    // stop counting at zero
+                        // startTimer(60);  // remove forward slashes in front of startTimer to repeat if required
+                    }
+                }
+            }
+        //App.startTimer(turnLength, true);
+        },
+        updateTimer: function(secs){
+            $('#timer').html(secs);  
+            if(secs == 0){
                 App.gameEnded();
+            }          
         },
         updateUserPoints: function(data){
+            App.players[turn].hasAlreadyWon = true;
             App.players[turn].myPoints +=1;
             for(var i = 0; i < App.players.length; i++){
                 if(App.players[i].mySocketID == data.socketID){
                     if(firstCorrectAnswer){
                         App.players[i].myPoints += 5;
                         firstCorrectAnswer = false;
-                        //console.log('foo');
-                        //console.log(App.players[i]);
-                        //console.log(App.players[i].myPoints);
                     }
                     else{
                         App.players[i].myPoints +=2;
                     }
-
+                    App.players[i].hasAlreadyWon = true;
                 }
             }
+
             //console.log('added points');
             //console.log(App.players);
             //update points in html
@@ -385,6 +421,14 @@ $(function(){
             $("#score").html(pointsList);
             usersHistory = userList;
             pointsHistory = pointsList;
+            for(i = 0; i<App.players.length; i ++){
+                if(App.players[i].hasAlreadyWon == false)
+                    return;
+            }
+            if(App.myRole =='Host'){
+                IO.socket.emit('startDrawingTimer', App.gameID, turnLength, false);
+            }
+            App.gameEnded();
         }
     }
 

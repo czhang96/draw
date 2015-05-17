@@ -19,6 +19,7 @@ exports.initGame = function(sio,socket,wordList){
     gameSocket.on('updateServerChatHistory',updateServerChatHistory);
     gameSocket.on('startDrawingTimer', startDrawingTimer);
     gameSocket.on('givePoints', givePoints);
+    gameSocket.on('broadcastTimer', broadcastTimer);
 }
 function randomProperty(object) {
   var keys = Object.keys(object);
@@ -82,32 +83,11 @@ function gameEnd(data){
 function updateServerChatHistory(data, chat_history){
     io.sockets.in(data.gameID).emit('saveChatHistory',chat_history);
 }
-function startDrawingTimer(data){
-    function startTimer(secs){
-        var timeInSecs = parseInt(secs)-1;
-        var ticker = setInterval(function(){ tick(); }, 1000);
-        function tick() {
-            var secs = timeInSecs;
-            if (secs>=0) {
-            timeInSecs--;
-            //console.log('it is pushing to this room');
-            //console.log(data);
-            io.sockets.in(data).emit('updateDrawingTimer',secs);
-            }
-            else {
-            //console.log('cleared?');
-            stopTick(); 
-            startTimer(40);
-            // stop counting at zero
-                // startTimer(60);  // remove forward slashes in front of startTimer to repeat if required
-            }
-        }
-        function stopTick(){
-            clearInterval(ticker);
-        }
-    }
-
-    startTimer(40);
+function startDrawingTimer(data, turnLength, start){
+    io.sockets.in(data).emit('startTimer', turnLength, start);
+}
+function broadcastTimer(data, secs){
+    io.sockets.in(data).emit('updateTimer', secs);
 }
 function givePoints(data){
     //console.log(data.gameID);
