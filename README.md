@@ -11,7 +11,8 @@ Currently you can:
 Features:
   - Turn based drawing
   - Score is kept 
-  - Friends can join your game while its in session
+  - Individual Lobbies allowing different groups of individuals to play together
+  - Multiple Colours and Thicknesses for drawing
 
 Future features:
   - More game logic
