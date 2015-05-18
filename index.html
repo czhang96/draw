@@ -86,9 +86,10 @@
             
             <div class = "pure-u-3-8"></div>
             <div class = "pure-u-1-4">
-                <div id="instructions" >
-                </div>
-                <p id = "players_waiting"></p> 
+            <div class="drawer-step3 guesser-step3">
+                Since you joined a game in progress. Please wait for the current round to end.
+                <div><span>Time Left: </span><span id="timer"></span></div>
+            </div>
             </div>
             <div class = "pure-u-4-24"></div>
             <div class ="pure-u-5-24">
@@ -107,7 +108,7 @@
                 <div style= "position:fixed;top:0;left:0;" id="cursors"></div>
                 <div class='timer'>
                     <div class="drawer-step3 guesser-step3">
-                        <span>Time Left: </span><span id="timer">0</span>
+                        <span>Time Left: </span><span id="timer"></span>
                     </div>
                     <div id='your_role'></div>
                     <div class="guesser-step2" id='drawer_word'></div>
@@ -148,7 +149,10 @@
         <div class="palette-case drawer-step2">
             <div id="dropupmenu">
                 <ul>
-                    <li class='drop-up-menu'><center><a href="#">Thickness</a></center>
+                <li id="clear-canvas" class='drop-up-menu pure-button pure-button-primary'><center><a href="#">Clear Canvas</a></center></li>
+                </ul>
+                <ul>
+                    <li class='drop-up-menu pure-button pure-button-primary'><center><a href="#">Thickness</a></center>
                             <ul>
                                     <li class="palette-thickness" id="70_very-large"><a href="#">Very Large</a></li>
                                     <li class="palette-thickness" id="15_large"><a href="#">Large</a></li>

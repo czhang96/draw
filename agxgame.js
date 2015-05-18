@@ -24,6 +24,7 @@ exports.initGame = function(sio,socket,wordList){
     gameSocket.on('broadcastNewThickness',broadcastNewThickness);
     gameSocket.on('restartDrawPath',restartDrawPath);
     gameSocket.on('updateTurn',updateTurn);
+    gameSocket.on('clearCurrentCanvas',clearCurrentCanvas);
 }
 function randomProperty(object) {
   var keys = Object.keys(object);
@@ -114,4 +115,7 @@ function restartDrawPath(data){
 }
 function updateTurn(data){
     this.broadcast.to(data.gameID).emit('updatePlayerTurn',data);
+}
+function clearCurrentCanvas(data){
+    io.sockets.in(data).emit('clearDrawingCanvas');
 }

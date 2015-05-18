@@ -29,6 +29,7 @@ $(function(){
             IO.socket.on('displayNewGameScreen', IO.onDisplayNewGameScreen);
             IO.socket.on('updatePlayerTurn',IO.updatePlayerTurn);
             IO.socket.on('ignoreNewPlayer',IO.ignoreNewPlayer);
+            IO.socket.on('clearDrawingCanvas',IO.clearDrawingCanvas);
         },
         onConnected: function(){
             App.mySocketID = IO.socket.socket.sessionid;
@@ -87,8 +88,10 @@ $(function(){
         },
         ignoreNewPlayer: function(data){
             App.players[App.players.length-1].hasAlreadyWon=true;
+        },
+        clearDrawingCanvas: function(){
+            App.ctx.clearRect( 0 , 0 , App.canvas[0].width, App.canvas[0].height );
         }
-
     }
     var displayHelp ={ lobby:false, drawer:false, guesser:false};
     var drawThickness = 10;
@@ -119,8 +122,8 @@ $(function(){
             App.$chat_template = $('#chat_template').html();
             App.$game_area  = $('#game_area').html();
             App.$lobby = $('#lobby').html();
-            App.$in_progress_lobby = $('#in_progress_lobby').html();
             App.$palette = $('#palette_template').html();
+            App.$in_progress_lobby = $('#in_progress_lobby').html();
         },
         bindEvents: function(){
             App.$doc.on('click','#create_room',App.onCreateClick);
@@ -130,6 +133,7 @@ $(function(){
             App.$doc.on('click','.palette-color',App.updateDrawColor);
             App.$doc.on('click','.palette-thickness',App.updateDrawThickness);
             App.$doc.on('click','#game_tutorial',App.prepareGameTutorial);
+            App.$doc.on('click','#clear-canvas',App.clearCanvas);
         },
         onCreateClick: function(){
             data={playerName:$('#player_name').val() || 'anon',
@@ -147,7 +151,6 @@ $(function(){
         },
         displayNewGameScreen : function(data){
             App.gameState = 'lobby';
-            console.log("asdf");
             $('#main_area').html((data.playing)?App.$in_progress_lobby:App.$lobby);
             $('#instructions').html("<h1>Game ID: "+App.gameID+"</h1><p>Give your friends this ID to join or this <a href='http://draw-prototype.herokuapp.com/g/"+App.gameID+"'>link</a></p><h1>Users</h1>");
             $('#room_number_header').html('Game ID: '+ App.gameID);
@@ -165,7 +168,6 @@ $(function(){
                 displayHelp.lobby = false;
             }
         },
-
         onJoinRoom: function(){
             //console.log('onjoinroom');
             var data = {gameID: $('#room_id').val(), 
@@ -191,17 +193,9 @@ $(function(){
             }
         },
         updatePlayerScreen: function(data){
-            //App.gameState = 'lobby';
             if (App.myRole == 'Player'){
-                //$('#main_area').html(App.$lobby);
                 $("#chat_area").html(App.$chat_template);
                 $('#messages').append(chatHistory);
-                // App.$cont = $('#chat');
-                // $("#m").keyup(function(event){
-                //     if(event.keyCode == 13){
-                //         $("#send_message").click();    
-                //     }
-                // });
                 $('#players_waiting').html("");
                 App.players = data;
                 for (var i = 0 ; i < data.length; i++){
@@ -286,6 +280,8 @@ $(function(){
             App.gameState = "playing";
             App.drawing = false;
             App.canvas = $('#paper');
+            App.canvas[0].width=window.innerWidth;
+            App.canvas[0].height=window.innerHeight;
             App.ctx = App.canvas[0].getContext('2d');
             App.clients = {};
             App.cursors = {};
@@ -311,7 +307,7 @@ $(function(){
                 App.drawing = false;
             });
             App.$doc.on('mousemove',function(e){
-                if($.now() - App.lastEmit > 30 && App.gameRole == 'drawer'){
+                if($.now() - App.lastEmit > 10 && App.gameRole == 'drawer'){
                     var moveData = {
                         'gameID': App.gameID,
                         'x': e.pageX,
@@ -334,7 +330,7 @@ $(function(){
             if(App.gameRole == "drawer"){
                 //console.log("i am the drawer");
                 //console.log(App.word);
-                $("#paper").css("cursor","url('http://csclub.uwaterloo.ca/~p23huang/pencil.png') 0 100, pointer");
+                $("#paper").css("cursor","url('http://draw-prototype.herokuapp.com/assets/img/pencil.png') 0 100, pointer");
                 $("#palette_area").html(App.$palette);
                 $("#your_role").html("You are the Drawer");
                 $("#drawer_word").html("The Word is: "+App.word);
@@ -520,6 +516,9 @@ $(function(){
                     startGuesserIntro();
             }
 
+        },
+        clearCanvas: function(){
+            IO.socket.emit('clearCurrentCanvas',App.gameID);
         }
     }
 
