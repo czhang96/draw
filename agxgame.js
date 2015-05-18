@@ -23,6 +23,7 @@ exports.initGame = function(sio,socket,wordList){
     gameSocket.on('broadcastNewColor',broadcastNewColor);
     gameSocket.on('broadcastNewThickness',broadcastNewThickness);
     gameSocket.on('restartDrawPath',restartDrawPath);
+    gameSocket.on('updateTurn',updateTurn);
 }
 function randomProperty(object) {
   var keys = Object.keys(object);
@@ -44,12 +45,18 @@ function playerJoinGame(data) {
     var room = gameSocket.manager.rooms["/" + data.gameID];
     var gameID = data.gameID;
     //console.log(gameSocket.manager.rooms["/" + data.gameID]);
-    if (rooms[gameID]=="playing"){
-        return;
-    }
+
     if( room != undefined ){
+
         data.mySocketID = sock.id;
         sock.join(data.gameID);
+        if (rooms[gameID]=="playing"){
+            data.playing=true;
+            io.sockets.in(data.gameID).emit('ignoreNewPlayer',data);
+        }
+
+   
+        
         this.emit('displayNewGameScreen',data)
         io.sockets.in(data.gameID).emit('playerJoinedRoom', data);
 
@@ -104,4 +111,7 @@ function broadcastNewThickness(gameID, drawThickness){
 }
 function restartDrawPath(data){
     io.sockets.in(data).emit('restartPath');
+}
+function updateTurn(data){
+    this.broadcast.to(data.gameID).emit('updatePlayerTurn',data);
 }

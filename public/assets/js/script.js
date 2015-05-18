@@ -26,6 +26,9 @@ $(function(){
             IO.socket.on('receiveNewColor', IO.receiveNewColor);
             IO.socket.on('receiveNewDrawThickness', IO.receiveNewDrawThickness);
             IO.socket.on('restartPath', IO.restartPath);
+            IO.socket.on('displayNewGameScreen', IO.onDisplayNewGameScreen);
+            IO.socket.on('updatePlayerTurn',IO.updatePlayerTurn);
+            IO.socket.on('ignoreNewPlayer',IO.ignoreNewPlayer);
         },
         onConnected: function(){
             App.mySocketID = IO.socket.socket.sessionid;
@@ -75,7 +78,17 @@ $(function(){
         },
         restartPath: function(){
             App.ctx.beginPath();
+        },
+        onDisplayNewGameScreen: function(data){
+            App.displayNewGameScreen(data);
+        },
+        updatePlayerTurn: function(data){
+            turn=data.turn;
+        },
+        ignoreNewPlayer: function(data){
+            App.players[App.players.length-1].hasAlreadyWon=true;
         }
+
     }
     var displayHelp ={ lobby:false, drawer:false, guesser:false};
     var drawThickness = 10;
@@ -106,6 +119,7 @@ $(function(){
             App.$chat_template = $('#chat_template').html();
             App.$game_area  = $('#game_area').html();
             App.$lobby = $('#lobby').html();
+            App.$in_progress_lobby = $('#in_progress_lobby').html();
             App.$palette = $('#palette_template').html();
         },
         bindEvents: function(){
@@ -133,7 +147,8 @@ $(function(){
         },
         displayNewGameScreen : function(data){
             App.gameState = 'lobby';
-            $('#main_area').html(App.$lobby);
+            console.log("asdf");
+            $('#main_area').html((data.playing)?App.$in_progress_lobby:App.$lobby);
             $('#instructions').html("<h1>Game ID: "+App.gameID+"</h1><p>Give your friends this ID to join or this <a href='http://draw-prototype.herokuapp.com/g/"+App.gameID+"'>link</a></p><h1>Users</h1>");
             $('#room_number_header').html('Game ID: '+ App.gameID);
             $("#chat_area").html(App.$chat_template);
@@ -150,6 +165,7 @@ $(function(){
                 displayHelp.lobby = false;
             }
         },
+
         onJoinRoom: function(){
             //console.log('onjoinroom');
             var data = {gameID: $('#room_id').val(), 
@@ -170,25 +186,29 @@ $(function(){
                 $('#players_waiting').append('<p>'+data.playerName+'</p>');
                 App.players.push(data);
                 IO.socket.emit('updatePlayerPlayersServer',App.players);
+                if (data.playing)
+                    App.players[App.players.length-1].hasAlreadyWon=true;
             }
         },
         updatePlayerScreen: function(data){
-            App.gameState = 'lobby';
+            //App.gameState = 'lobby';
             if (App.myRole == 'Player'){
-                $('#main_area').html(App.$lobby);
+                //$('#main_area').html(App.$lobby);
                 $("#chat_area").html(App.$chat_template);
                 $('#messages').append(chatHistory);
-                App.$cont = $('#chat');
-                $("#m").keyup(function(event){
-                    if(event.keyCode == 13){
-                        $("#send_message").click();    
-                    }
-                });
+                // App.$cont = $('#chat');
+                // $("#m").keyup(function(event){
+                //     if(event.keyCode == 13){
+                //         $("#send_message").click();    
+                //     }
+                // });
                 $('#players_waiting').html("");
                 App.players = data;
                 for (var i = 0 ; i < data.length; i++){
                     $('#players_waiting').append('<p>'+data[i].playerName+'</p>');
                 }
+                if (data.playing)
+                    App.players[App.players.length].hasAlreadyWon=true;
                 if(displayHelp.lobby == true){
                 startLobbyIntro();
                 displayHelp.lobby = false;
@@ -266,17 +286,6 @@ $(function(){
             App.gameState = "playing";
             App.drawing = false;
             App.canvas = $('#paper');
-            App.canvas[0].width=window.innerWidth;
-            App.canvas[0].height=window.innerHeight;
-            App.temp_canvas = $('#temp_canvas');
-             window.addEventListener('resize',function(){
-                App.temp_canvas[0].width = App.canvas[0].width;
-                App.temp_canvas[0].height = App.canvas[0].height;
-                App.temp_canvas[0].getContext('2d').drawImage(App.canvas[0],0,0);
-                App.canvas[0].width=window.innerWidth;
-                App.canvas[0].height=window.innerHeight;
-                App.canvas[0].getContext('2d').drawImage(App.temp_canvas[0],0,0,App.temp_canvas[0].width,App.temp_canvas[0].height);
-            },false);
             App.ctx = App.canvas[0].getContext('2d');
             App.clients = {};
             App.cursors = {};
@@ -394,10 +403,16 @@ $(function(){
             pointsHistory = pointsList;
             //console.log('all players list');
             //console.log(App.players);
-            if(turn < App.players.length -1)
-                turn++;
-            else
-                turn = 0;
+            if (App.myRole=="Host"){
+                if(turn < App.players.length -1)
+                    turn++;
+                else
+                    turn = 0;
+                var data = {gameID:App.gameID,turn:turn}
+                IO.socket.emit('updateTurn',data);
+            }
+
+
             //console.log(chatHistory);
             App.gameState = "lobby";
             //console.log("i know who won");
