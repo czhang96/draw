@@ -220,10 +220,11 @@ label {
 }
 
 #cursors .cursor{
+    margin-top:-27px;
     position:absolute;
-    width:15px;
-    height:22px;
-    background:url('../img/pointer.png') no-repeat -4px 0;
+    width:30px;
+    height:30px;
+    background:url('../img/pencil.png') no-repeat 0 0;
 }
 
 #form{
@@ -252,6 +253,7 @@ label {
 #paper{
     height:100vh;
     width:100vw;
+    cursor:default;
 }
 #temp_canvas{
     display:none;

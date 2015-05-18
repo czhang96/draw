@@ -3,8 +3,8 @@ $(function(){
     var IO = {
 
         init : function(){
-            var url = "http://localhost:5000";
-            //var url = 'https://draw-prototype.herokuapp.com/';
+            //var url = "http://localhost:5000";
+            var url = 'https://draw-prototype.herokuapp.com/';
             //var url = 'https://ancient-fjord-8441.herokuapp.com';
             IO.socket = io.connect(url);
             IO.bindEvents();
@@ -25,6 +25,7 @@ $(function(){
             IO.socket.on('updateUserPoints', IO.updateUserPoints);
             IO.socket.on('receiveNewColor', IO.receiveNewColor);
             IO.socket.on('receiveNewDrawThickness', IO.receiveNewDrawThickness);
+            IO.socket.on('restartPath', IO.restartPath);
         },
         onConnected: function(){
             App.mySocketID = IO.socket.socket.sessionid;
@@ -65,13 +66,18 @@ $(function(){
             App.updateUserPoints(data);
         },
         receiveNewColor: function(data){
+            App.ctx.beginPath();
             color = data;
         },
-        receiveNewDrawThickness: function(data){
+        receiveNewDrawThickness: function(data){        
+            App.ctx.beginPath();
             drawThickness = data;
+        },
+        restartPath: function(){
+            App.ctx.beginPath();
         }
     }
-    var drawThickness = 1;
+    var drawThickness = 10;
     var color = '#000';
     var ticker;
     var turnLength = 40;
@@ -226,6 +232,7 @@ $(function(){
             IO.socket.emit('startGame',App.gameID);
         },
         prepareStartGame: function(data){
+            $("#paper").css("cursor", "default");
             //console.log(App.players);
             //console.log(turn);
             App.hasAlreadyWon = false;
@@ -279,6 +286,9 @@ $(function(){
                 }
             });
             App.$doc.bind('mouseup mouseleave',function(){
+                if(App.gameRole == 'drawer'){
+                    IO.socket.emit('restartDrawPath', App.gameID);
+                }
                 App.drawing = false;
             });
             App.$doc.on('mousemove',function(e){
@@ -305,9 +315,11 @@ $(function(){
             if(App.gameRole == "drawer"){
                 //console.log("i am the drawer");
                 //console.log(App.word);
+                $("#paper").css("cursor","url('http://csclub.uwaterloo.ca/~p23huang/pencil.png') 0 100, pointer");
                 $("#palette_area").html(App.$palette);
                 $("#your_role").html("You are the Drawer");
                 $("#drawer_word").html("The Word is: "+App.word);
+
 
             }
             if(App.gameRole == "guesser"){
@@ -346,6 +358,7 @@ $(function(){
             App.clients[data.id].updated = $.now();
         },
         drawLine: function(fromx, fromy, tox, toy){
+            //App.ctx.moveTo(fromx, fromy);
             App.ctx.lineWidth = drawThickness;
             App.ctx.strokeStyle = color;
             App.ctx.lineTo(tox, toy);
