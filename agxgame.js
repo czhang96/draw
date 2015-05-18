@@ -20,6 +20,8 @@ exports.initGame = function(sio,socket,wordList){
     gameSocket.on('startDrawingTimer', startDrawingTimer);
     gameSocket.on('givePoints', givePoints);
     gameSocket.on('broadcastTimer', broadcastTimer);
+    gameSocket.on('broadcastNewColor',broadcastNewColor);
+    gameSocket.on('broadcastNewThickness',broadcastNewThickness);
 }
 function randomProperty(object) {
   var keys = Object.keys(object);
@@ -92,4 +94,10 @@ function broadcastTimer(data, secs){
 function givePoints(data){
     //console.log(data.gameID);
     io.sockets.in(data.gameID).emit('updateUserPoints', data);
+}
+function broadcastNewColor(gameID, color){
+    io.sockets.in(gameID).emit('receiveNewColor', color);
+}
+function broadcastNewThickness(gameID, drawThickness){
+    io.sockets.in(gameID).emit('receiveNewDrawThickness', drawThickness);
 }

@@ -3,8 +3,8 @@ $(function(){
     var IO = {
 
         init : function(){
-            //var url = "http://localhost:5000";
-            var url = 'https://draw-prototype.herokuapp.com/';
+            var url = "http://localhost:5000";
+            //var url = 'https://draw-prototype.herokuapp.com/';
             //var url = 'https://ancient-fjord-8441.herokuapp.com';
             IO.socket = io.connect(url);
             IO.bindEvents();
@@ -23,6 +23,8 @@ $(function(){
             IO.socket.on('startTimer', IO.startTimer);
             IO.socket.on('updateTimer', IO.updateTimer);
             IO.socket.on('updateUserPoints', IO.updateUserPoints);
+            IO.socket.on('receiveNewColor', IO.receiveNewColor);
+            IO.socket.on('receiveNewDrawThickness', IO.receiveNewDrawThickness);
         },
         onConnected: function(){
             App.mySocketID = IO.socket.socket.sessionid;
@@ -62,7 +64,15 @@ $(function(){
         updateUserPoints: function(data){
             App.updateUserPoints(data);
         },
+        receiveNewColor: function(data){
+            color = data;
+        },
+        receiveNewDrawThickness: function(data){
+            drawThickness = data;
+        }
     }
+    var drawThickness = 1;
+    var color = '#000';
     var ticker;
     var turnLength = 40;
     var firstCorrectAnswer = true;
@@ -89,15 +99,15 @@ $(function(){
             App.$chat_template = $('#chat_template').html();
             App.$game_area  = $('#game_area').html();
             App.$lobby = $('#lobby').html();
+            App.$palette = $('#palette_template').html();
         },
         bindEvents: function(){
             App.$doc.on('click','#create_room',App.onCreateClick);
             App.$doc.on('click','#join_room',App.onJoinRoom);
             App.$doc.on('click','#send_message',App.sendMessage);
             App.$doc.on('click','#start_game',App.startGame);
-
-
-
+            App.$doc.on('click','.palette-color',App.updateDrawColor);
+            App.$doc.on('click','.palette-thickness',App.updateDrawThickness);
         },
         onCreateClick: function(){
             data={playerName:$('#player_name').val() || 'anon',
@@ -223,6 +233,7 @@ $(function(){
             for(var i = 0; i < App.players.length; i++){
                 App.players[i].hasAlreadyWon = false;
             }
+            $("#palette_area").html('');
             $("#main_area").html(App.$game_area);
             $("#chat_area").html(App.$chat_template);
             $('#messages').append(chatHistory);
@@ -259,6 +270,7 @@ $(function(){
             App.word=data.word;
             $("#current-word").html((App.gameRole=="drawer")?"Word: "+App.word:"");
             App.canvas.on('mousedown',function(e){
+                App.ctx.beginPath();
                 if(App.gameRole == "drawer"){
                     e.preventDefault();
                     App.drawing = true;
@@ -270,7 +282,7 @@ $(function(){
                 App.drawing = false;
             });
             App.$doc.on('mousemove',function(e){
-                if($.now() - App.lastEmit > 30){
+                if($.now() - App.lastEmit > 30 && App.gameRole == 'drawer'){
                     var moveData = {
                         'gameID': App.gameID,
                         'x': e.pageX,
@@ -293,8 +305,10 @@ $(function(){
             if(App.gameRole == "drawer"){
                 //console.log("i am the drawer");
                 //console.log(App.word);
+                $("#palette_area").html(App.$palette);
                 $("#your_role").html("You are the Drawer");
                 $("#drawer_word").html("The Word is: "+App.word);
+
             }
             if(App.gameRole == "guesser"){
                 var hint = '&nbsp;&nbsp;';
@@ -332,7 +346,8 @@ $(function(){
             App.clients[data.id].updated = $.now();
         },
         drawLine: function(fromx, fromy, tox, toy){
-            App.ctx.moveTo(fromx, fromy);
+            App.ctx.lineWidth = drawThickness;
+            App.ctx.strokeStyle = color;
             App.ctx.lineTo(tox, toy);
             App.ctx.stroke();
         },
@@ -426,6 +441,21 @@ $(function(){
                 IO.socket.emit('startDrawingTimer', App.gameID, turnLength, false);
             }
             App.gameEnded();
+        },
+        updateDrawColor: function(){
+            $(".palette-color").css("border-color", "#777");
+            $(".palette-color").css("border-style", "solid");
+            $(this).css("border-color", "#fff");
+            $(this).css("border-style", "dashed");
+            color = $(this).css("background-color");
+            IO.socket.emit('broadcastNewColor',App.gameID, color);
+        },
+        updateDrawThickness: function(){
+            $(".palette-thickness").css("background", "#979E71");
+            $(this).css("background", "#ECF1E7");
+            var drawThicknessId = $(this)[0].id;
+            drawThickness = drawThicknessId.split("_")[0];
+            IO.socket.emit('broadcastNewThickness',App.gameID, drawThickness);
         }
     }
 

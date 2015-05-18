@@ -1,0 +1,73 @@
+html,
+body{
+    margin:0;
+    padding:0;
+    height:100%;
+}
+#page-container{
+    min-height:100%;
+    position:relative;
+}
+#palette_area{
+    position:absolute;
+    bottom:0;
+    width:100%;
+}
+.palette-case {
+    width:715px;
+    margin:auto;
+    text-align:center;
+}
+.palette-box {
+    float:left;
+    padding:2px 6px 2px 6px;
+}
+.palette-stroke{
+    border:2px solid #777;
+    height:36px;
+    width:36px;
+}
+.palette-color{
+    border:2px solid #777;
+    height:36px;
+    width:36px;
+}
+.palette {
+}
+.red{
+    background-color:#c22;
+}
+.blue{
+    background-color:#22c;
+}
+.green{
+    background-color:#2c2;
+}
+.white{
+    background-color:#fff;
+}
+.black{
+    background-color:#000;
+    border:2px dashed #fff;
+}
+.orange{
+    background-color:#FF8833;
+}
+.yellow{
+    background-color:#FBE870;
+}
+.light-blue{
+    background-color:#00F5FF;
+}
+.purple{
+    background-color:#9B30FF
+}
+.pink{
+    background-color:#F653A6;
+}
+.brown{
+    background-color:#805533;
+}
+.gray{
+    background-color:#D3D3D3;
+}

@@ -1,0 +1,86 @@
+#dropupmenu * { 
+    padding:0; 
+    font: 12px georgia; 
+    list-style-type:none;}
+#dropupmenu a { 
+    display: block; 
+    text-decoration: none; 
+    color: #3B5330;}
+
+
+center { /* added this rule to make it above the subdropupmenu */
+    position: relative;
+    z-index: 2;
+    background: #979E71;
+}
+#dropupmenu ul li ul li a:hover { 
+    background: #ECF1E7; /*what i want */
+    padding-left:9px;
+    border-left: solid 1px #000;}
+#dropupmenu ul li ul li {
+    width: 100px; 
+    border: none; 
+    color: #B0BD97;  
+    padding-top: 3px; 
+    padding-bottom:3px; 
+    padding-left: 3px; 
+    padding-right: 3px; 
+    background: #B0BD97;
+    z-index:1;
+}
+#dropupmenu ul li ul li a { 
+    font: 11px arial; 
+    font-weight:normal; 
+    font-variant: small-caps; 
+    padding-top:3px; 
+    padding-bottom:3px;}
+#dropupmenu ul li {
+    float: left; 
+    width: 100px; 
+    font-weight: bold; 
+    border-top: solid 1px #283923; 
+    border-bottom: solid 1px #283923; 
+    background: #979E71;}
+#dropupmenu ul li a { 
+    font-weight: bold;
+    padding: 10px 5px;}
+#dropupmenu li{ 
+    position:relative; 
+    float:left;}
+#dropupmenu ul li ul, #dropupmenu:hover ul li ul, #dropupmenu:hover ul li:hover ul li ul{ 
+    visibility:hidden; /* Had to change display none to visibility:hidden */
+    position:absolute;
+    list-style-type:none; 
+    width: 140px;}
+#dropupmenu:hover ul, #dropupmenu:hover ul li:hover ul, #dropupmenu:hover ul li:hover ul li:hover ul { 
+    visibility:visible;} /* Same here */
+#dropupmenu:hover ul li:hover ul li:hover ul { 
+    position: absolute;
+    margin-left: 145px;
+    margin-top: -22px;
+    font: 10px;}
+#dropupmenu:hover ul li:hover ul { 
+    position: absolute;
+    margin-top: 1px;
+    font: 10px;
+}
+
+/* added rule */
+#dropupmenu>ul>li>ul {
+    bottom:0%;
+    z-index:1;
+    transition: bottom 0.2s;
+}
+#dropupmenu>ul>li>ul:hover {
+    z-index:3;
+}
+#dropupmenu>ul>li:hover>ul {
+    bottom:100%;
+    border-bottom: 1px solid transparent
+}
+.drop-up-menu{
+    height:36px;
+    margin-top:2px;
+    margin-left:20px;
+    margin-right:5px;
+}

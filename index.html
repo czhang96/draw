@@ -4,6 +4,8 @@
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Draw - Online Pictionary</title>
+    <link rel="stylesheet" href="assets/css/dropupmenu.css">
+    <link rel="stylesheet" href="assets/css/palette.css">
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
 <!--[if lte IE 8]>
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-old-ie-min.css">
@@ -16,44 +18,48 @@
         <link rel="stylesheet" href="css/layouts/marketing-old-ie.css">
     <![endif]-->
     <!--[if gt IE 8]><!-->
-        <link rel="stylesheet" href="assets/css/styles.css">
+            <link rel="stylesheet" href="assets/css/styles.css">
     <!--<![endif]-->
 <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-
-<div class="header">
-    <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
-        <a class="pure-menu-heading" href="">Draw!</a><a id = "current-word" class="pure-menu-heading"></a><a id = "room_number_header" class="pure-menu-heading" style='float:right;'></a>
-    </div>
-</div>
-
-<div class="splash-container">
-    <div id = "main_area"  class = "splash">
-       <div class= "pure-g">
-            <div class = "pure-u-9-24"></div>
-            <div class = "pure-u-1-4"style= "border: 1px solid black; padding: 10px 10px 45px 10px; background: #2d3e50;">
-        <div id = "instruction">
-            <h1 class = "splash_titles">Play now!</h1>
-            <input class="splash-head" id = "player_name" type="text" placeholder="Your Name">
-
-            <p>
-                <button  id = "create_room" class="pure-button pure-button-primary">Create Room</button>
-            </p>
-            <p class="splash-subhead">
-                OR
-            </p>
-            <input class="splash-head" id="room_id" type="text" placeholder="Game ID">
-            <p>
-                <button id = "join_room" class="pure-button pure-button-primary">Join Game</button>
-            </p>
-             </div>
-
-             </div><div class = "pure-u-9-24"></div>
+<div id='page-container'>
+    <div class="header">
+        <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
+            <a class="pure-menu-heading" href="">Draw!</a><a id = "current-word" class="pure-menu-heading"></a><a id = "room_number_header" class="pure-menu-heading" style='float:right;'></a>
         </div>
-       
+    </div>
+
+    <div class="splash-container">
+        <div id = "main_area"  class = "splash">
+           <div class= "pure-g">
+                <div class = "pure-u-9-24"></div>
+                <div class = "pure-u-1-4"style= "border: 1px solid black; padding: 10px 10px 45px 10px; background: #2d3e50;">
+            <div id = "instruction">
+                <h1 class = "splash_titles">Play now!</h1>
+                <input class="splash-head" id = "player_name" type="text" placeholder="Your Name">
+
+                <p>
+                    <button  id = "create_room" class="pure-button pure-button-primary">Create Room</button>
+                </p>
+                <p class="splash-subhead">
+                    OR
+                </p>
+                <input class="splash-head" id="room_id" type="text" placeholder="Game ID">
+                <p>
+                    <button id = "join_room" class="pure-button pure-button-primary">Join Game</button>
+                </p>
+                 </div>
+
+                 </div><div class = "pure-u-9-24"></div>
+            </div>
+           
+        </div>
+            <div id="palette_area" class='pure-menu'>
+            </div>
     </div>
 </div>
+
  <script id = "lobby" type = "text/template">
         <div class= "pure-g">
             
@@ -106,6 +112,62 @@
           <button  class="pure-button pure-button-primary" id = "send_message">Send</button>
         </fieldset>
    </div> </div>
+</script>
+<script id = "palette_template" type="text/template">
+    <div class="footer">
+        <div class="palette-case">
+            <div id="dropupmenu">
+                <ul>
+                    <li class='drop-up-menu'><center><a href="#">Thickness</a></center>
+                            <ul>
+                                    <li class="palette-thickness" id="70_very-large"><a href="#">Very Large</a></li>
+                                    <li class="palette-thickness" id="15_large"><a href="#">Large</a></li>
+                                    <li class="palette-thickness" id="10_medium"><a href="#">Medium</a></li>
+                                    <li class="palette-thickness" id="5_small"><a href="#">Small</a></li>
+                                    <li class="palette-thickness" id="1_very-small"><a href="#">Very Small</li>
+                            </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="palette-box">
+                <div class="palette-color white"></div>
+            </div> 
+            <div class="palette-box">
+                <div class="palette-color pink"></div>
+            </div> 
+            <div class="palette-box">
+                <div class="palette-color red"></div>
+            </div>
+            <div class="palette-box">
+                <div class="palette-color orange"></div>
+            </div>
+            <div class="palette-box">
+                <div class="palette-color yellow"></div>
+            </div>
+            <div class="palette-box">
+                <div class="palette-color green"></div>
+            </div>
+            <div class="palette-box">
+                <div class="palette-color light-blue"></div>
+            </div>
+            <div class="palette-box">
+                <div class="palette-color blue"></div>
+            </div>
+            <div class="palette-box">
+                <div class="palette-color purple"></div>
+            </div>
+            <div class="palette-box">
+                <div class="palette-color brown"></div>
+            </div>     
+            <div class="palette-box">
+                <div class="palette-color gray"></div>
+            </div>     
+            <div class="palette-box">
+                <div class="palette-color black"></div>
+            </div>      
+            <div style="clear:both"></div>
+        </div>
+    </div>
 </script>
 <script src="https://code.jquery.com/jquery-1.8.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
