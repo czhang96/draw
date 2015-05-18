@@ -77,6 +77,7 @@ $(function(){
             App.ctx.beginPath();
         }
     }
+    var displayHelp ={ lobby:false, drawer:false, guesser:false};
     var drawThickness = 10;
     var color = '#000';
     var ticker;
@@ -95,7 +96,7 @@ $(function(){
         clients:{},
         word:"",
         gameRole: 'guess',
-        gameState: 'lobby',
+        gameState: 'home',
         init: function(){
             App.cacheElements();
             App.bindEvents();
@@ -114,6 +115,7 @@ $(function(){
             App.$doc.on('click','#start_game',App.startGame);
             App.$doc.on('click','.palette-color',App.updateDrawColor);
             App.$doc.on('click','.palette-thickness',App.updateDrawThickness);
+            App.$doc.on('click','#game_tutorial',App.prepareGameTutorial);
         },
         onCreateClick: function(){
             data={playerName:$('#player_name').val() || 'anon',
@@ -130,6 +132,7 @@ $(function(){
             App.displayNewGameScreen(data);
         },
         displayNewGameScreen : function(data){
+            App.gameState = 'lobby';
             $('#main_area').html(App.$lobby);
             $('#instructions').html("<h1>Game ID: "+App.gameID+"</h1><p>Give your friends this ID to join or this <a href='http://draw-prototype.herokuapp.com/g/"+App.gameID+"'>link</a></p><h1>Users</h1>");
             $('#room_number_header').html('Game ID: '+ App.gameID);
@@ -142,8 +145,10 @@ $(function(){
                     
                 }
             });
-
-        
+            if(displayHelp.lobby == true){
+                startLobbyIntro();
+                displayHelp.lobby = false;
+            }
         },
         onJoinRoom: function(){
             //console.log('onjoinroom');
@@ -168,6 +173,7 @@ $(function(){
             }
         },
         updatePlayerScreen: function(data){
+            App.gameState = 'lobby';
             if (App.myRole == 'Player'){
                 $('#main_area').html(App.$lobby);
                 $("#chat_area").html(App.$chat_template);
@@ -182,6 +188,10 @@ $(function(){
                 App.players = data;
                 for (var i = 0 ; i < data.length; i++){
                     $('#players_waiting').append('<p>'+data[i].playerName+'</p>');
+                }
+                if(displayHelp.lobby == true){
+                startLobbyIntro();
+                displayHelp.lobby = false;
                 }
             }
             var userList = "<li class='pure-menu-item'>Users</li>";
@@ -319,6 +329,10 @@ $(function(){
                 $("#palette_area").html(App.$palette);
                 $("#your_role").html("You are the Drawer");
                 $("#drawer_word").html("The Word is: "+App.word);
+                if(displayHelp.drawer == true){
+                    startDrawerIntro();
+                    displayHelp.drawer = false;
+                }
 
 
             }
@@ -335,6 +349,10 @@ $(function(){
                 }
                 $("#your_role").html("You are a Guesser");
                 $("#drawer_word").html("Hint "+hint);
+                if(displayHelp.guesser == true){
+                    startGuesserIntro();
+                    displayHelp.guesser = false;
+                }
                 //console.log("i am the guesser");
                 //console.log("i dont know the word is"+ App.word);
             }
@@ -469,6 +487,24 @@ $(function(){
             var drawThicknessId = $(this)[0].id;
             drawThickness = drawThicknessId.split("_")[0];
             IO.socket.emit('broadcastNewThickness',App.gameID, drawThickness);
+        },
+        prepareGameTutorial: function(){
+            if(App.gameState !='playing'){
+                displayHelp.drawer = true;
+                displayHelp.guesser = true;
+                displayHelp.lobby = true;
+                if(App.gameState == 'home')
+                    startHomeIntro();
+                else
+                    startLobbyIntro();
+            }
+            else{
+                if(App.gameRole == 'drawer')
+                    startDrawerIntro();
+                else
+                    startGuesserIntro();
+            }
+
         }
     }
 

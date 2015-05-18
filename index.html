@@ -4,6 +4,7 @@
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Draw - Online Pictionary</title>
+    <link rel="stylesheet" href="assets/css/introjs.css">
     <link rel="stylesheet" href="assets/css/dropupmenu.css">
     <link rel="stylesheet" href="assets/css/palette.css">
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
@@ -26,7 +27,9 @@
 <div id='page-container'>
     <div class="header">
         <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
-            <a class="pure-menu-heading" href="">Draw!</a><a id = "current-word" class="pure-menu-heading"></a><a id = "room_number_header" class="pure-menu-heading" style='float:right;'></a>
+            <a class="pure-menu-heading" href="">Draw!</a><a id = "current-word" class="pure-menu-heading drawer-step1"></a>
+            <a id = "room_number_header" class="pure-menu-heading" style='float:right;'></a>
+            <a href="#" id = "game_tutorial" class="pure-menu-heading" style='float:right;'>How to Play (?)</a>
         </div>
     </div>
 
@@ -37,19 +40,21 @@
                 <div class = "pure-u-1-4"style= "border: 1px solid black; padding: 10px 10px 45px 10px; background: #2d3e50;">
             <div id = "instruction">
                 <h1 class = "splash_titles">Play now!</h1>
-                <input class="splash-head" id = "player_name" type="text" placeholder="Your Name">
+                <input class="splash-head step1" id = "player_name" type="text" placeholder="Your Name">
 
                 <p>
-                    <button  id = "create_room" class="pure-button pure-button-primary">Create Room</button>
+                    <button  id = "create_room" class="pure-button pure-button-primary step3">Create Room</button>
                 </p>
                 <p class="splash-subhead">
                     OR
                 </p>
-                <input class="splash-head" id="room_id" type="text" placeholder="Game ID">
-                <p>
-                    <button id = "join_room" class="pure-button pure-button-primary">Join Game</button>
-                </p>
-                 </div>
+                <div class="step2">
+                    <input class="splash-head" id="room_id" type="text" placeholder="Game ID">
+                    <p>
+                        <button id = "join_room" class="pure-button pure-button-primary">Join Game</button>
+                    </p>
+                </div>
+            </div>
 
                  </div><div class = "pure-u-9-24"></div>
             </div>
@@ -81,9 +86,11 @@
             <div class = "pure-u-19-24">
                 <div style= "position:fixed;top:0;left:0;" id="cursors"></div>
                 <div class='timer'>
-                <span>Time Left: </span><span id="timer">0</span>
-                <div id='your_role'></div>
-                <div id='drawer_word'></div>
+                    <div class="drawer-step3 guesser-step3">
+                        <span>Time Left: </span><span id="timer">0</span>
+                    </div>
+                    <div id='your_role'></div>
+                    <div class="guesser-step2" id='drawer_word'></div>
                 </div>
                 <canvas id="paper" style= "position:fixed;top:0;left:0;">
                     Your browser needs to support canvas for this to work!
@@ -97,25 +104,28 @@
 </script>      
 <script id = "chat_template" type="text/template">
 <div style = "position:relative;z-index:999">
-    <div id = "users" class="pure-menu pure-menu-scrollable custom-restricted custom-restricted3">
-    <ul id='userlist' style="float:left" class="pure-menu-list">Users
-    </ul>    
-    <ul id='score'  style="float:right" class="pure-menu-list">Score
-    </ul>
+    <div id = "users" class="pure-menu pure-menu-scrollable custom-restricted custom-restricted3 lobby-step1">
+        <ul id='userlist' style="float:left" class="pure-menu-list">Users
+        </ul>    
+        <ul id='score'  style="float:right" class="pure-menu-list">Score
+        </ul>
     </div>
-    <div id = "chat" class="pure-menu pure-menu-scrollable custom-restricted custom-restricted2" >
-        <ul id="messages" class="pure-menu-list" ></ul>
-    </div>
-    <div class="pure-form" id = "form">
-        <fieldset>
-          <input id="m" autocomplete="off" />
-          <button  class="pure-button pure-button-primary" id = "send_message">Send</button>
-        </fieldset>
-   </div> </div>
+    <div class="lobby-step2">
+        <div id = "chat" class="pure-menu pure-menu-scrollable custom-restricted custom-restricted2" >
+            <ul id="messages" class="pure-menu-list" ></ul>
+        </div>
+            <div class="pure-form" id = "form">
+                <fieldset class="guesser-step1">
+                  <input id="m" autocomplete="off" />
+                  <button  class="pure-button pure-button-primary" id = "send_message">Send</button>
+                </fieldset>
+           </div>
+       </div>
+   </div>
 </script>
 <script id = "palette_template" type="text/template">
     <div class="footer">
-        <div class="palette-case">
+        <div class="palette-case drawer-step2">
             <div id="dropupmenu">
                 <ul>
                     <li class='drop-up-menu'><center><a href="#">Thickness</a></center>
@@ -171,6 +181,8 @@
 </script>
 <script src="https://code.jquery.com/jquery-1.8.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+<script src="assets/js/intro.min.js"></script>
+<script src="assets/js/game_tutorial.js"></script>
 <script src="assets/js/script.js"></script>
 </body>
 </html>
