@@ -32,7 +32,7 @@ $(function(){
             IO.socket.on('clearDrawingCanvas',IO.clearDrawingCanvas);
         },
         onConnected: function(){
-            App.mySocketID = IO.socket.socket.sessionid;
+            App.mySocketID = IO.socket.id;
 
         },
         onNewGameCreated: function(data){
@@ -87,7 +87,8 @@ $(function(){
             turn=data.turn;
         },
         ignoreNewPlayer: function(data){
-            App.players[App.players.length-1].hasAlreadyWon=true;
+            if(App.players.length>0)
+                App.players[App.players.length-1].hasAlreadyWon=true;
         },
         clearDrawingCanvas: function(){
             App.ctx.clearRect( 0 , 0 , App.canvas[0].width, App.canvas[0].height );

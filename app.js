@@ -34,7 +34,6 @@ app.get('/words', function(req, res) {
 app.get('/g/:id', function(req,res) {
   res.send("<p>Feature currently in development");
 });
-
 io.on('connection', function(socket){
 	game.initGame(io,socket,wordList);
 });

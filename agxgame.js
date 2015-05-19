@@ -32,7 +32,6 @@ function randomProperty(object) {
 };
 
 function hostCreateNewGame(data){
-
 	var gameID =  (Math.random()*100000) | 0 ;
 	data.gameID = gameID;
 	data.mySocketID = this.id;
@@ -43,7 +42,7 @@ function hostCreateNewGame(data){
 function playerJoinGame(data) {
    //console.log('joined game');
     var sock = this;
-    var room = gameSocket.manager.rooms["/" + data.gameID];
+    var room = gameSocket.adapter.rooms[data.gameID];
     var gameID = data.gameID;
     //console.log(gameSocket.manager.rooms["/" + data.gameID]);
 
@@ -78,8 +77,7 @@ function chatMessage(chat_data) {
 function startGame(data) {
     //console.log(data);
     io.sockets.in(data).emit('prepareStartGame',
-                            {id:io.sockets.clients(data)[Math.floor(io.sockets.clients(data).length * Math.random())].id,
-                            word:words.arr[Math.floor(words.arr.length * Math.random())]});
+                            {word:words.arr[Math.floor(words.arr.length * Math.random())]});
     rooms[data] = "playing";
 }
 function mousemove(data){
