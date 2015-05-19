@@ -13,6 +13,7 @@ Features:
   - Score is kept 
   - Individual Lobbies allowing different groups of individuals to play together
   - Multiple Colours and Thicknesses for drawing
+  - Friends can join your game while its in session
 
 Future features:
   - More game logic
