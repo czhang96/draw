@@ -94,11 +94,12 @@ $(function(){
             App.ctx.clearRect( 0 , 0 , App.canvas[0].width, App.canvas[0].height );
         }
     }
+    var preventCursorRace = false; //stops a residual cursor after a new game starts
     var displayHelp ={ lobby:false, drawer:false, guesser:false};
     var drawThickness = 10;
     var color = '#000';
     var ticker;
-    var turnLength = 40;
+    var turnLength = 10;
     var firstCorrectAnswer = true;
     var turn = 0;
     var usersHistory = '';
@@ -308,7 +309,7 @@ $(function(){
                 App.drawing = false;
             });
             App.$doc.on('mousemove',function(e){
-                if($.now() - App.lastEmit > 10 && App.gameRole == 'drawer'){
+                if($.now() - App.lastEmit > 10 && App.gameRole == 'drawer'){ //todo prevent race
                     var moveData = {
                         'gameID': App.gameID,
                         'x': e.pageX,
@@ -363,11 +364,16 @@ $(function(){
                 //console.log("i dont know the word is"+ App.word);
             }
             $("#user"+App.players[turn].mySocketID).html(App.players[turn].playerName+' (drawer)');
+            preventCursorRace = false; //tells everyone to start receiving cursor signals again
             //console.log('bar');
         },
 
         moving: function (data) {
+            if(preventCursorRace){
+                return;
+            }
             if(! (data.id in App.clients)){
+                //$('#cursors').empty();
                 App.cursors[data.id] = $('<div class="cursor">').appendTo('#cursors');
             }
             App.cursors[data.id].css({
@@ -390,6 +396,7 @@ $(function(){
         },
         gameEnded: function(data){
             //update points
+            preventCursorRace = true;   //tells everyone to stop receiving cursor mousemove signals
             var userList = "<li class='pure-menu-item'>Users</li>";
             var pointsList = "<li class='pure-menu-item'>Score</li>";
             for(var i = 0; i < App.players.length; i++){
