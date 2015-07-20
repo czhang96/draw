@@ -105,6 +105,12 @@ $(function(){
     var usersHistory = '';
     var pointsHistory = '';
     var chatHistory = '';
+    var PointAllocation = {
+        FirstAnswer: 5,
+        SubsequentAnswer: 2,
+        DrawerPoints: 2,
+        FailDrawDeduction: -2
+    };
     var App = {
         gameID:0,
         myRole: '',
@@ -460,21 +466,21 @@ $(function(){
             $('#timer').html(secs);  
             if(secs == 0){
                 if(App.players[turn].hasAlreadyWon == false)
-                    App.players[turn].myPoints -=2;
+                    App.players[turn].myPoints -= PointAllocation.FailDrawDeduction;
                 App.gameEnded();
             }          
         },
         updateUserPoints: function(data){
-            App.players[turn].myPoints +=1;
+            App.players[turn].myPoints += PointAllocation.DrawerPoints;
             App.players[turn].hasAlreadyWon = true;
             for(var i = 0; i < App.players.length; i++){
                 if(App.players[i].mySocketID == data.socketID){
                     if(firstCorrectAnswer){
-                        App.players[i].myPoints += 5;
+                        App.players[i].myPoints += PointAllocation.FirstAnswer;
                         firstCorrectAnswer = false;
                     }
                     else{
-                        App.players[i].myPoints +=2;
+                        App.players[i].myPoints += PointAllocation.SubsequentAnswer;
                     }
                     App.players[i].hasAlreadyWon = true;
                     $("#user"+App.players[i].mySocketID).html(App.players[i].playerName+' (&#10004)');
