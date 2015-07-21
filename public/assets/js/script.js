@@ -1,5 +1,3 @@
-$(function(){
-    
     var IO = {
 
         init : function(){
@@ -105,7 +103,7 @@ $(function(){
     var drawThickness = 10;
     var color = '#000';
     var ticker;
-    var turnLength = 10;
+    var turnLength = 40;
     var firstCorrectAnswer = true;
     var turn = 0;
     var usersHistory = '';
@@ -533,8 +531,9 @@ $(function(){
                 displayHelp.drawer = true;
                 displayHelp.guesser = true;
                 displayHelp.lobby = true;
-                if(App.gameState == 'home')
-                    startHomeIntro();
+                if(App.gameState == 'home'){
+                    startHomeIntro(false);
+                }
                 else
                     startLobbyIntro();
             }
@@ -553,9 +552,3 @@ $(function(){
 
     IO.init();
     App.init();
-
-
-
-    
-
-});

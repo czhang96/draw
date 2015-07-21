@@ -1,28 +1,54 @@
-function startHomeIntro(){
-  var intro = introJs();
-    intro.setOptions({
-      steps: [
-        {
-          intro: "Welcome to Online Pictionary"
-        },
-        {
-          element: '.step1',
-          intro: "Input your name here.",
-          position: 'right'
-        },
-        {
-          element: '.step2',
-          intro: "If you know the lobby GameID, input it here and click the join game button.",
-          position: 'right'
-        },
-        {
-          element: '.step3',
-          intro: 'You can also create your own lobby.',
-          position: 'right'
-        }
-      ]
-    });
-    intro.start();
+function startHomeIntro(firstTime){
+  if(firstTime){
+    var intro = introJs();
+      intro.setOptions({
+        steps: [
+          {
+            intro: "Welcome to Online Pictionary. Since this is your first visit, we are going to walk you through on how to play. If at any point you get lost. The tutorial can be reopened using the 'How to Play(?)' button on the top menu."
+          },
+          {
+            element: '.step1',
+            intro: "Input your name here.",
+            position: 'right'
+          },
+          {
+            element: '.step2',
+            intro: "If you know the lobby GameID, input it here and click the join game button.",
+            position: 'right'
+          },
+          {
+            element: '.step3',
+            intro: 'You can also create your own lobby.',
+            position: 'right'
+          }
+        ]
+      });
+      intro.start();
+  }
+  else{
+    console.log(firstTime);
+    var intro = introJs();
+      intro.setOptions({
+        steps: [
+          {
+            element: '.step1',
+            intro: "Input your name here.",
+            position: 'right'
+          },
+          {
+            element: '.step2',
+            intro: "If you know the lobby GameID, input it here and click the join game button.",
+            position: 'right'
+          },
+          {
+            element: '.step3',
+            intro: 'You can also create your own lobby.',
+            position: 'right'
+          }
+        ]
+      });
+      intro.start();
+  }
 }
 function startGuesserIntro(){
   var intro = introJs();
