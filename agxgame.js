@@ -80,8 +80,8 @@ function startGame(data) {
                             {word:words.arr[Math.floor(words.arr.length * Math.random())]});
     rooms[data] = "playing";
 }
-function mousemove(data){
-    this.broadcast.to(data.gameID).emit('isMoving',data);
+function mousemove(data, drawer_window_size){
+    this.broadcast.to(data.gameID).emit('isMoving',data, drawer_window_size);
 }
 function gameEnd(data){
     //{winner_name}

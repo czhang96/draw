@@ -3,9 +3,10 @@ $(function(){
     var IO = {
 
         init : function(){
-            var url = "http://localhost:5000";
-            //var url = 'https://draw-prototype.herokuapp.com/';
+            //var url = "http://localhost:5000";
+            var url = 'https://draw-prototype.herokuapp.com/';
             //var url = 'https://ancient-fjord-8441.herokuapp.com';
+            //var url = 'https://129.97.134.17:5000;'
             IO.socket = io.connect(url);
             IO.bindEvents();
 
@@ -50,8 +51,8 @@ $(function(){
         prepareStartGame: function(data){
             App.prepareStartGame(data);
         },
-        isMoving: function(data){
-            App.moving(data);
+        isMoving: function(data, drawer_window_size){
+            App.moving(data, drawer_window_size);
         },
         gameEnded: function(data){
             App.gameEnded(data);
@@ -94,6 +95,11 @@ $(function(){
             App.ctx.clearRect( 0 , 0 , App.canvas[0].width, App.canvas[0].height );
         }
     }
+    var windowSize = {
+        viewPortWidth: jQuery(window).width(),
+        viewPortHeight: jQuery(window).height(),
+        chatBoxWidth: 0
+    };
     var preventCursorRace = false; //stops a residual cursor after a new game starts
     var displayHelp ={ lobby:false, drawer:false, guesser:false};
     var drawThickness = 10;
@@ -269,6 +275,7 @@ $(function(){
             //console.log(turn);
             App.hasAlreadyWon = false;
             firstCorrectAnswer = true;
+            windowSize.chatBoxWidth = $("#chat_area").width(); //grabs the width of the chatbox for scaling
             for(var i = 0; i < App.players.length; i++){
                 App.players[i].hasAlreadyWon = false;
             }
@@ -314,6 +321,7 @@ $(function(){
                 }
                 App.drawing = false;
             });
+            //todo send window dimensions
             App.$doc.on('mousemove',function(e){
                 if($.now() - App.lastEmit > 10 && App.gameRole == 'drawer'){ //todo prevent race
                     var moveData = {
@@ -324,7 +332,7 @@ $(function(){
                         'id': App.mySocketID
                     };
 
-                    IO.socket.emit('mousemove',moveData);
+                    IO.socket.emit('mousemove',moveData, windowSize);
                     App.lastEmit = $.now();
                 }
                 if(App.drawing){
@@ -374,10 +382,16 @@ $(function(){
             //console.log('bar');
         },
 
-        moving: function (data) {
+        moving: function (data, drawer_window_size) {
             if(preventCursorRace){
                 return;
             }
+            var drawer_canvas_size_x = drawer_window_size.viewPortWidth - drawer_window_size.chatBoxWidth;
+            var x_ratio = data.x / drawer_canvas_size_x;
+            var y_ratio = data.y / drawer_window_size.viewPortHeight;
+            data.x = x_ratio * (windowSize.viewPortWidth - windowSize.chatBoxWidth);
+            data.y = y_ratio * windowSize.viewPortHeight;
+            //resizing appropriate ratios for different monitor resolutions
             if(! (data.id in App.clients)){
                 //$('#cursors').empty();
                 App.cursors[data.id] = $('<div class="cursor">').appendTo('#cursors');
@@ -386,6 +400,7 @@ $(function(){
                 'left' : data.x,
                 'top' : data.y
             });
+            //todo update with the correct dimensions
             if(data.drawing && App.clients[data.id]){
 
                 App.drawLine(App.clients[data.id].x, App.clients[data.id].y, data.x, data.y);
