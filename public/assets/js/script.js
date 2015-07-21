@@ -146,6 +146,7 @@
             App.$doc.on('click','.palette-thickness',App.updateDrawThickness);
             App.$doc.on('click','#game_tutorial',App.prepareGameTutorial);
             App.$doc.on('click','#clear-canvas',App.clearCanvas);
+            $(window).resize(App.recalculateDimensions);
         },
         onCreateClick: function(){
             data={playerName:$('#player_name').val() || 'anon',
@@ -547,6 +548,12 @@
         },
         clearCanvas: function(){
             IO.socket.emit('clearCurrentCanvas',App.gameID);
+        },
+        recalculateDimensions: function(){
+            windowSize.viewPortWidth = jQuery(window).width();
+            windowSize.viewPortHeight = jQuery(window).height();
+            windowSize.chatBoxWidth = $("#chat_area").width();
+            console.log(windowSize);
         }
     }
 
