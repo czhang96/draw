@@ -28,9 +28,9 @@ app.use(express.static(__dirname + '/public'));
 app.get('/', function(req, res) {
   res.sendfile('index.html');
 });
-app.get('/words', function(req, res) {
-  res.sendfile('assets/img/words.txt');
-});
+// app.get('/words', function(req, res) {
+//   res.sendfile('assets/img/words.txt');
+// });
 app.get('/g/:id', function(req,res) {
   res.send("<p>Feature currently in development");
 });
