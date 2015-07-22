@@ -35,10 +35,10 @@
 
     <div class="splash-container">
         <div id = "main_area"  class = "splash">
-           <div class= "pure-g">
-                <div class = "pure-u-9-24"></div>
-                <div class = "pure-u-1-4"style= "border: 1px solid black; padding: 10px 10px 45px 10px; background: #2d3e50;">
-            <div id = "instruction">
+           <div class= "pure-g main_content">
+                <div class = "pure-u-1-5 pure-u-md-9-24"></div>
+                <div class = "pure-u-3-5 start_menu pure-u-md-1-4">
+            <div class="main_menu_background" id = "instruction">
                 <h1 class = "splash_titles">Play now!</h1>
                 <input class="splash-head step1" id = "player_name" type="text" placeholder="Your Name">
 
@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-                 </div><div class = "pure-u-9-24"></div>
+                 </div><div class = "pure-u-3-5 pure-u-md-9-24"></div>
             </div>
            
         </div>
@@ -66,23 +66,23 @@
 </div>
 
  <script id = "lobby" type = "text/template">
-        <div class= "pure-g">
+        <div class= "pure-g main_content">
             
             <div class = "pure-u-3-8"></div>
-            <div class = "pure-u-1-4">
+            <div class = "pure-u-1-4 start_menu">
                 <div id="instructions" >
                 </div>
                 <p id = "players_waiting"></p> <button id = "start_game" class="pure-button pure-button-primary" >Start game! </button>
             </div>
             <div class = "pure-u-4-24"></div>
-            <div class ="pure-u-5-24">
+            <div class ="pure-u-5-24 max_height">
                 <div id = "chat_area" ></div>
             </div>
         </div>
 </script>
 
 <script id = 'in_progress_lobby' type = "text/template">
-        <div class= "pure-g">
+        <div class= "pure-g main_content">
             
             <div class = "pure-u-3-8"></div>
             <div class = "pure-u-1-4">
@@ -92,7 +92,7 @@
             </div>
             </div>
             <div class = "pure-u-4-24"></div>
-            <div class ="pure-u-5-24">
+            <div class ="pure-u-5-24 max_height">
                 <div id = "chat_area" ></div>
             </div>
         </div>
@@ -102,43 +102,46 @@
 
 
 <script id = "game_area" type="text/template">
-    <div class= "pure-g">
-        
-            <div class = "pure-u-19-24">
-                <div style= "position:fixed;top:0;left:0;" id="cursors"></div>
-                <div class='timer'>
+    <div class= "pure-g main_content">
+        <div class="pure-u-4-24">
                     <div class="drawer-step3 guesser-step3">
                         <span>Time Left: </span><span id="timer"></span>
                     </div>
                     <div id='your_role'></div>
                     <div class="guesser-step2" id='drawer_word'></div>
-                </div>
+        </div>
+            <div class = "pure-u-15-24">
+                <div style= "position:fixed;top:0;left:0;" id="cursors"></div>
                 <canvas id="paper" style= "position:fixed;top:0;left:0;">
                     Your browser needs to support canvas for this to work!
                 </canvas>
             
             </div>
-        <div class ="pure-u-5-24">
+        <div class ="pure-u-5-24 max_height">
             <div id = "chat_area" ></div>
         </div>
     </div>
 </script>      
 <script id = "chat_template" type="text/template">
-<div style = "position:relative;z-index:999">
-    <div id = "users" class="pure-menu pure-menu-scrollable custom-restricted custom-restricted3 lobby-step1">
+<div class="main_chat_wrapper">
+    <div id = "users" class="pure-menu pure-menu-scrollable custom-restricted lobby-step1 users_list">
         <ul id='userlist' style="float:left" class="pure-menu-list">Users
         </ul>    
         <ul id='score'  style="float:right" class="pure-menu-list">Score
         </ul>
     </div>
-    <div class="lobby-step2">
-        <div id = "chat" class="pure-menu pure-menu-scrollable custom-restricted custom-restricted2" >
+    <div class="lobby-step2 users_chat">
+        <div id = "chat" class="pure-menu pure-menu-scrollable custom-restricted chat_box" >
             <ul id="messages" class="pure-menu-list" ></ul>
         </div>
-            <div class="pure-form" id = "form">
+            <div class="pure-form pure-g" id = "form">
                 <fieldset class="guesser-step1">
-                  <input id="m" autocomplete="off" />
-                  <button  class="pure-button pure-button-primary" id = "send_message">Send</button>
+                  <div class="pure-u-md-1-1 pure-u-lg-2-3">
+                    <input class="pure-u-md-1-1 pure-u-lg-23-24 message_input"id="m" autocomplete="off" />
+                  </div>
+                  <div class="pure-u-md-1-1 pure-u-lg-1-3">
+                    <button class="pure-button pure-button-primary pure-u-1-1" id = "send_message">Send</button>
+                  </div>
                 </fieldset>
            </div>
        </div>
@@ -203,7 +206,7 @@
         </div>
     </div>
 </script>
-<script src="https://code.jquery.com/jquery-1.8.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 <script src="assets/js/intro.min.js"></script>
 <script src="assets/js/game_tutorial.js"></script>

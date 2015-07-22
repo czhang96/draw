@@ -553,7 +553,6 @@
             windowSize.viewPortWidth = jQuery(window).width();
             windowSize.viewPortHeight = jQuery(window).height();
             windowSize.chatBoxWidth = $("#chat_area").width();
-            console.log(windowSize);
         }
     }
 

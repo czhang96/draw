@@ -76,7 +76,6 @@ label {
 .pure-button {
     background-color: #627487;
     color: white;
-    padding: 0.5em 2em;
     border-radius: 5px;
 }
 
@@ -120,7 +119,9 @@ label {
     border: none;
     color: #AECFE5;
 }
-
+fieldset{
+    min-width:0;
+}
 
 /*
  * -- SPLASH STYLES --
@@ -142,10 +143,8 @@ label {
 .splash {
     /* absolute center .splash within .splash-container */
     width: 100%;
-    height: 50%;
-    margin: auto 0;
     position: absolute;
-    top: 100px; left: 0; bottom: 0; right: 0;
+    top: 15%; left: 0; bottom: 0; right: 0;
     text-align: center;
 
 }
@@ -183,7 +182,10 @@ label {
     background: white;
 
 }
-
+/*Main content that the user will interact with*/
+.main_content{
+    height:100%;
+}
 /* This is the class used for the main content headers (<h2>) */
 .content-head {
     font-weight: 400;
@@ -230,16 +232,16 @@ label {
 #form{
     text-align:left;
 }
-#chat_area{
-    margin-top:-150px;
-    margin-right:5px;
-
+.users_list{
+    height:30%;
+}
+.users_chat{
+    height:70%;
 }
 #chat li:nth-child(odd) { background: #eee; }
 #messages li { padding: 5px 10px; }
 .custom-restricted {
     text-align:left;
-    height:350px;
     width: 100%;
     border: 1px solid gray;
     border-radius: 4px;
@@ -251,8 +253,8 @@ label {
     margin-right:45%;
 }
 #paper{
-    height:100vh;
-    width:100vw;
+    height:100;
+    width:100;
     cursor:default;
 }
 #temp_canvas{
@@ -292,7 +294,6 @@ label {
     to work with */
     .splash {
         width: 100%;
-        height: 50%;
     }
 
     .splash-head {
@@ -310,6 +311,28 @@ label {
     position:absolute;
     margin-left:30px;
     margin-top: -70px;
+}
+.guesser-step1{
+    width:100%;
+}
+#chat_area{
+    height:100%;
+}
+.max_height{
+    height:100%;
+}
+.main_chat_wrapper{
+     position: relative;
+     z-index: 999;
+     height: 100%;
+}
+.chat_box{
+    height:70%;
+}
+.main_menu_background{
+    padding-top: 3%;
+    background: #2d3e50;
+    padding-bottom: 3%;
 }
 /*
  * -- DESKTOP (AND UP) MEDIA QUERIES --
@@ -334,4 +357,25 @@ label {
         height:150px;
 
     }   
+}
+/*
+ * -- MOBILE MEDIA QUERIES --
+*/
+@media (max-width: 64em) {
+    .message_input{
+    width:100%;
+}
+    #send_message{
+        margin-top:2%;
+    }
+}
+@media (max-width: 48em) {
+    #chat_box{
+        margin-top:5px;
+    }
+}
+@media (min-width: 48em) {
+    .start_menu{
+        margin-top:4%;
+    }
 }
