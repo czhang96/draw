@@ -1,5 +1,5 @@
-    var IO = {
 
+    var IO = {
         init : function(){
             //var url = "http://localhost:5000";
             var url = 'https://draw-prototype.herokuapp.com/';
@@ -29,6 +29,7 @@
             IO.socket.on('updatePlayerTurn',IO.updatePlayerTurn);
             IO.socket.on('ignoreNewPlayer',IO.ignoreNewPlayer);
             IO.socket.on('clearDrawingCanvas',IO.clearDrawingCanvas);
+            IO.socket.on('userHasLeft', IO.userHasLeft);
         },
         onConnected: function(){
             App.mySocketID = IO.socket.id;
@@ -91,6 +92,9 @@
         },
         clearDrawingCanvas: function(){
             App.ctx.clearRect( 0 , 0 , App.canvas[0].width, App.canvas[0].height );
+        },
+        userHasLeft: function(data){
+            App.userHasLeft(data);
         }
     }
     var windowSize = {
@@ -104,6 +108,7 @@
     var color = '#000';
     var ticker;
     var turnLength = 40;
+    var currentTimer = 0;
     var firstCorrectAnswer = true;
     var turn = 0;
     var usersHistory = '';
@@ -113,7 +118,7 @@
         FirstAnswer: 5,
         SubsequentAnswer: 2,
         DrawerPoints: 2,
-        FailDrawDeduction: -2
+        FailDrawDeduction: 5
     };
     var App = {
         gameID:0,
@@ -147,6 +152,11 @@
             App.$doc.on('click','#game_tutorial',App.prepareGameTutorial);
             App.$doc.on('click','#clear-canvas',App.clearCanvas);
             $(window).resize(App.recalculateDimensions);
+            window.onbeforeunload = function(){
+                if(App.gameState == 'playing')
+                    return 'You are Currently in a game. Are you sure you want to leave?'
+            };
+            window.onunload = App.onUserLeave;
         },
         onCreateClick: function(){
             data={playerName:$('#player_name').val() || 'anon',
@@ -360,12 +370,12 @@
                 var hint = '&nbsp;&nbsp;';
                 for( var i = 0; i < App.word.length; i++){
                     //console.log(App.word[i]);
-                    	if(App.word[i]==' '){
+                        if(App.word[i]==' '){
                             //console.log(true);
-            			   hint = hint + '&nbsp;&nbsp;&nbsp;';
+                           hint = hint + '&nbsp;&nbsp;&nbsp;';
                         }
-            			else
-            			   hint = hint+'_ ';
+                        else
+                           hint = hint+'_ ';
                 }
                 $("#your_role").html("You are a Guesser");
                 $("#drawer_word").html("Hint "+hint);
@@ -477,6 +487,7 @@
         //App.startTimer(turnLength, true);
         },
         updateTimer: function(secs){
+            currentTimer = secs; //saves the current timer value in case we need to change the host in the middle of a game
             $('#timer').html(secs);  
             if(secs == 0){
                 if(App.players[turn].hasAlreadyWon == false)
@@ -553,6 +564,40 @@
             windowSize.viewPortWidth = jQuery(window).width();
             windowSize.viewPortHeight = jQuery(window).height();
             windowSize.chatBoxWidth = $("#chat_area").width();
+        },
+        onUserLeave: function(){
+            var userInformation = {
+                SocketID: App.mySocketID,
+                MyRole: App.myRole,
+                MyName: App.myName,
+                GameRole: App.gameRole
+            };
+            IO.socket.emit('playerLeft', App.gameID, userInformation);
+        },
+        userHasLeft: function(data){
+            console.log(data);
+            //removes player from the UI
+            $("#" +"user"+data.SocketID ).remove();
+            $("#" + data.SocketID + "score").remove();
+            //remove player from global player list
+            for(var i = 0; i < App.players.length; i++){
+                if(App.players[i].mySocketID == data.SocketID){
+                    App.players.splice(i, 1);
+                }
+            }
+            if(data.MyRole = "Host" && App.mySocketID == App.players[0].mySocketID){
+                App.myRole = "Host";
+                if(App.gameState == "playing"){
+                    App.startTimer(currentTimer, false);
+                }
+                //continues the timer where the original host left off
+            }
+            if(data.GameRole == "drawer" && App.myRole == "Host"){
+                App.gameEnded();
+                App.startTimer(turnLength, false);
+            }
+            console.log(App);
+            console.log(data);
         }
     }
 
