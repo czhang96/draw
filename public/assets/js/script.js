@@ -107,7 +107,7 @@
     var drawThickness = 10;
     var color = '#000';
     var ticker;
-    var turnLength = 40;
+    var turnLength_global = 60;
     var currentTimer = 0;
     var firstCorrectAnswer = true;
     var turn = 0;
@@ -275,7 +275,7 @@
         },
         startGame: function(){
             //console.log(App.gameID);
-            IO.socket.emit('startDrawingTimer', App.gameID, turnLength, true);
+            IO.socket.emit('startDrawingTimer', App.gameID, turnLength_global, true);
             IO.socket.emit('startGame',App.gameID);
         },
         prepareStartGame: function(data){
@@ -478,7 +478,7 @@
                     else {
                     //console.log('cleared?');
                     clearInterval(ticker);
-                    App.startTimer(turnLength, true);
+                    App.startTimer(turnLength_global, true);
                     // stop counting at zero
                         // startTimer(60);  // remove forward slashes in front of startTimer to repeat if required
                     }
@@ -519,7 +519,7 @@
                     return;
             }
             if(App.myRole =='Host'){
-                IO.socket.emit('startDrawingTimer', App.gameID, turnLength, false);
+                IO.socket.emit('startDrawingTimer', App.gameID, turnLength_global, false);
             }
             App.gameEnded();
         },
@@ -576,6 +576,7 @@
         },
         userHasLeft: function(data){
             console.log(data);
+            console.log(App.players);
             //removes player from the UI
             $("#" +"user"+data.SocketID ).remove();
             $("#" + data.SocketID + "score").remove();
@@ -585,7 +586,7 @@
                     App.players.splice(i, 1);
                 }
             }
-            if(data.MyRole = "Host" && App.mySocketID == App.players[0].mySocketID){
+            if(data.MyRole == "Host" && App.mySocketID == App.players[0].mySocketID){
                 App.myRole = "Host";
                 if(App.gameState == "playing"){
                     App.startTimer(currentTimer, false);
@@ -594,10 +595,8 @@
             }
             if(data.GameRole == "drawer" && App.myRole == "Host"){
                 App.gameEnded();
-                App.startTimer(turnLength, false);
+                App.startTimer(turnLength_global, false);
             }
-            console.log(App);
-            console.log(data);
         }
     }
 

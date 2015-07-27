@@ -334,6 +334,9 @@ fieldset{
     background: #2d3e50;
     padding-bottom: 3%;
 }
+.pure-menu-horizontal{
+    white-space: normal;
+}
 /*
  * -- DESKTOP (AND UP) MEDIA QUERIES --
  * On desktops and other large devices, we want to over-ride some
