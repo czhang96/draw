@@ -14,10 +14,12 @@ var fs = require('fs');
 var wordList;
 
 //temporary word list, mongodb integration in progress
+
 fs.readFile('words.json', 'utf8', function (err, data) {
   if (err) throw err;
   wordList = JSON.parse(data);
 });
+
 // var static = require('node-static');
 // var fileServer = new static.Server
 server.listen(process.env.PORT || 5000);

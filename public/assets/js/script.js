@@ -1,8 +1,8 @@
 
     var IO = {
         init : function(){
-            //var url = "http://localhost:5000";
-            var url = 'https://draw-prototype.herokuapp.com/';
+            var url = "http://localhost:5000";
+            //var url = 'https://draw-prototype.herokuapp.com/';
             //var url = 'https://ancient-fjord-8441.herokuapp.com';
             //var url = 'https://129.97.134.17:5000;'
             IO.socket = io.connect(url);
@@ -102,6 +102,10 @@
         viewPortHeight: jQuery(window).height(),
         chatBoxWidth: 0
     };
+    var hint = "";
+    var letters_to_reveal = new Array();
+    var total_reveal_count = 0;
+    var reveal_interval = 0;
     var preventCursorRace = false; //stops a residual cursor after a new game starts
     var displayHelp ={ lobby:false, drawer:false, guesser:false};
     var drawThickness = 10;
@@ -332,7 +336,7 @@
             });
             //todo send window dimensions
             App.$doc.on('mousemove',function(e){
-                if($.now() - App.lastEmit > 10 && App.gameRole == 'drawer'){ //todo prevent race
+                if($.now() - App.lastEmit > 10 && App.gameRole == 'drawer' && currentTimer > 1 && preventCursorRace == false){ //todo prevent race
                     var moveData = {
                         'gameID': App.gameID,
                         'x': e.pageX,
@@ -367,7 +371,7 @@
 
             }
             if(App.gameRole == "guesser"){
-                var hint = '&nbsp;&nbsp;';
+                hint = '';
                 for( var i = 0; i < App.word.length; i++){
                     //console.log(App.word[i]);
                         if(App.word[i]==' '){
@@ -378,7 +382,7 @@
                            hint = hint+'_ ';
                 }
                 $("#your_role").html("You are a Guesser");
-                $("#drawer_word").html("Hint "+hint);
+                $("#drawer_word").html("Hint&nbsp;&nbsp&nbsp;"+hint);
                 if(displayHelp.guesser == true){
                     startGuesserIntro();
                     displayHelp.guesser = false;
@@ -387,8 +391,23 @@
                 //console.log("i dont know the word is"+ App.word);
             }
             $("#user"+App.players[turn].mySocketID).html(App.players[turn].playerName+' (drawer)');
+            
+            //console.log(App.word + "length = " + App.word.length);
+            letters_to_reveal = [];
+            for(var i = 0; i < App.word.length; i++){
+                if(App.word[i] != " ")
+                    letters_to_reveal.push(i);
+            }
+            //console.log("letters to reveal length " + letters_to_reveal.length);
+            if(letters_to_reveal.length > 2){
+                total_reveal_count = Math.floor(letters_to_reveal.length / 2);
+                reveal_interval = Math.ceil(turnLength_global / (total_reveal_count + 1));
+            }
+            else{
+                total_reveal_count = 0;
+                reveal_interval = 'none';
+            }
             preventCursorRace = false; //tells everyone to start receiving cursor signals again
-            //console.log('bar');
         },
 
         moving: function (data, drawer_window_size) {
@@ -493,6 +512,10 @@
                 if(App.players[turn].hasAlreadyWon == false)
                     App.players[turn].myPoints -= PointAllocation.FailDrawDeduction;
                 App.gameEnded();
+            }
+            else if(currentTimer != turnLength_global && currentTimer % reveal_interval == 0 && App.gameRole != 'drawer'){
+                //console.log("currentTimer: " + currentTimer + ' reveal_interval ' + reveal_interval + 'total_reveal_count ' + total_reveal_count);
+                App.RevealLetter();
             }          
         },
         updateUserPoints: function(data){
@@ -575,8 +598,8 @@
             IO.socket.emit('playerLeft', App.gameID, userInformation);
         },
         userHasLeft: function(data){
-            console.log(data);
-            console.log(App.players);
+            // console.log(data);
+            // console.log(App.players);
             //removes player from the UI
             $("#" +"user"+data.SocketID ).remove();
             $("#" + data.SocketID + "score").remove();
@@ -597,6 +620,39 @@
                 App.gameEnded();
                 App.startTimer(turnLength_global, false);
             }
+        },
+        RevealLetter: function(){
+            var index = Math.floor(Math.random() * (letters_to_reveal.length));
+            temp_hint = ConvertHintToArray(hint);
+            temp_hint[letters_to_reveal[index]] = App.word[letters_to_reveal[index]];
+            hint = ConvertHintToString(temp_hint);
+            letters_to_reveal.splice(index, 1);
+            $(drawer_word).html("Hint&nbsp;&nbsp&nbsp;" + hint);
+
+            function ConvertHintToArray(hint_string){
+                var hint_copy2 = hint_string;
+                var tmp_hint = new Array();
+                var hint_copy = hint_copy2.replace(/&nbsp;&nbsp;&nbsp;/gi, "%");
+                console.log(hint_copy);
+                for(var i = 0; i < hint_copy.length; i++){
+                    if(hint_copy[i] != ' '){
+                        tmp_hint.push(hint_copy[i]);
+                    }
+                }
+                return tmp_hint;
+            };
+            function ConvertHintToString(hint_array){
+                var tmp = "";
+                for(var i = 0; i < hint_array.length; i++){
+                    if(hint_array[i] == "%"){
+                        tmp = tmp + "&nbsp;&nbsp;&nbsp;";
+                    }
+                    else{
+                        tmp = tmp + hint_array[i] + " ";
+                    }
+                }
+                return tmp;
+            };
         }
     }
 
