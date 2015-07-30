@@ -26,6 +26,7 @@ exports.initGame = function(sio,socket,wordList){
     gameSocket.on('updateTurn',updateTurn);
     gameSocket.on('clearCurrentCanvas',clearCurrentCanvas);
     gameSocket.on('playerLeft', playerLeft);
+    gameSocket.on('endGameLobby',endGameLobby);
 }
 function randomProperty(object) {
   var keys = Object.keys(object);
@@ -120,4 +121,7 @@ function clearCurrentCanvas(data){
 }
 function playerLeft(data, userInformation){
     io.sockets.in(data).emit('userHasLeft', userInformation);
+}
+function endGameLobby(data){
+    io.sockets.in(data).emit('gameEndedLobby');
 }

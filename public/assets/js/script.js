@@ -1,4 +1,7 @@
-
+// TODO: Create new field to store whether someone has guessed the correct word, cannot use hasAlreadyWon
+// TODO: Change the Timers to deploy 
+// TODO: Change to a new Server
+// TODO: Allow server to handle the random number generator so the revealed letters are equal among all devices
     var IO = {
         init : function(){
             var url = "http://localhost:5000";
@@ -30,6 +33,7 @@
             IO.socket.on('ignoreNewPlayer',IO.ignoreNewPlayer);
             IO.socket.on('clearDrawingCanvas',IO.clearDrawingCanvas);
             IO.socket.on('userHasLeft', IO.userHasLeft);
+            IO.socket.on('gameEndedLobby',IO.gameEndedLobby);
         },
         onConnected: function(){
             App.mySocketID = IO.socket.id;
@@ -95,6 +99,9 @@
         },
         userHasLeft: function(data){
             App.userHasLeft(data);
+        },
+        gameEndedLobby: function(){
+            App.gameEndedLobby();
         }
     }
     var windowSize = {
@@ -111,7 +118,8 @@
     var drawThickness = 10;
     var color = '#000';
     var ticker;
-    var turnLength_global = 60;
+    var turnLength_global = 10; //!!!Change
+    var end_round_wait_time = 10; //!!!Change
     var currentTimer = 0;
     var firstCorrectAnswer = true;
     var turn = 0;
@@ -145,6 +153,7 @@
             App.$lobby = $('#lobby').html();
             App.$palette = $('#palette_template').html();
             App.$in_progress_lobby = $('#in_progress_lobby').html();
+            App.$end_round_lobby = $('#end_round_lobby').html();
         },
         bindEvents: function(){
             App.$doc.on('click','#create_room',App.onCreateClick);
@@ -166,6 +175,7 @@
             data={playerName:$('#player_name').val() || 'anon',
                   myPoints: 0,
                   hasAlreadyWon: false,
+                  guessedCorrectly: false
                   };
             IO.socket.emit('hostCreateNewGame',data);
         },
@@ -201,6 +211,7 @@
                         playerName:$('#player_name').val() || 'anon',
                         myPoints: 0,
                         hasAlreadyWon: false,
+                        guessedCorrectly: false
                         };
             IO.socket.emit('playerJoinGame',data);
             App.myRole = 'Player';
@@ -291,6 +302,7 @@
             windowSize.chatBoxWidth = $("#chat_area").width(); //grabs the width of the chatbox for scaling
             for(var i = 0; i < App.players.length; i++){
                 App.players[i].hasAlreadyWon = false;
+                App.players[i].guessedCorrectly = false;
             }
             $("#palette_area").html('');
             $("#main_area").html(App.$game_area);
@@ -469,14 +481,44 @@
             //console.log(chatHistory);
             App.gameState = "lobby";
             //console.log("i know who won");
-            if(App.myRole == 'Host')
-                IO.socket.emit('startGame',App.gameID);
+            if(App.myRole == 'Host')//!!!Change
+                IO.socket.emit('endGameLobby', App.gameID);
+                //IO.socket.emit('startGame',App.gameID);
             //console.log(chatHistory);
             // $("#main_area").html(App.$lobby);
             // $('#instructions').html("<h1>"+App.gameID+"</h1><h2>Winner: "+data+"</h2");
             for (var i  = 0 ; i < App.players.length ; i ++ ){
                 //console.log(App.players);
                 $('#players_waiting').append('<p>'+App.players[i].playerName+'</p>');
+            }
+        },
+        gameEndedLobby: function(){ //!!!Change
+            $('#main_area').html(App.$end_round_lobby);
+
+            if(App.players[turn].playerName == App.myName){
+                $('#next_drawer').html("You Are ");
+            }
+            else{
+                $('#next_drawer').html(App.players[turn].playerName + " is ");
+            }
+
+            App.startTimer(end_round_wait_time, false);
+            App.gameState = "endLobby";
+            var correct_count = 0;
+            for(var i = 0; i < App.players.length; i++){
+                if(App.players[i].guessedCorrectly == true){
+                    correct_count++;
+                }
+            }
+            console.log(App.players);
+            if(correct_count == App.players.length - 1){
+                $('#correct_count').html("All Players ");
+            }
+            else if(correct_count == 1){
+                $('#correct_count').html("1 Player ");
+            }
+            else{
+                $('#correct_count').html(correct_count + " Players ");
             }
         },
         startTimer: function(turnLength, start){
@@ -506,9 +548,14 @@
         //App.startTimer(turnLength, true);
         },
         updateTimer: function(secs){
+            console.log(App.gameState);
             currentTimer = secs; //saves the current timer value in case we need to change the host in the middle of a game
-            $('#timer').html(secs);  
-            if(secs == 0){
+            $('#timer').html(secs);
+            if(secs == 0 && App.gameState == "endLobby" && App.myRole=="Host"){
+                console.log('foo');
+                IO.socket.emit('startGame',App.gameID);
+            }  
+            else if(secs == 0){
                 if(App.players[turn].hasAlreadyWon == false)
                     App.players[turn].myPoints -= PointAllocation.FailDrawDeduction;
                 App.gameEnded();
@@ -531,6 +578,7 @@
                         App.players[i].myPoints += PointAllocation.SubsequentAnswer;
                     }
                     App.players[i].hasAlreadyWon = true;
+                    App.players[i].guessedCorrectly = true;
                     $("#user"+App.players[i].mySocketID).html(App.players[i].playerName+' (&#10004)');
                     $("#"+App.players[i].mySocketID+'score').html(App.players[i].myPoints);
                     $("#"+App.players[turn].mySocketID+'score').html(App.players[turn].myPoints);
@@ -622,6 +670,9 @@
             }
         },
         RevealLetter: function(){
+            if(App.hasAlreadyWon){
+                return;
+            }
             var index = Math.floor(Math.random() * (letters_to_reveal.length));
             temp_hint = ConvertHintToArray(hint);
             temp_hint[letters_to_reveal[index]] = App.word[letters_to_reveal[index]];

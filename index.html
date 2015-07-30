@@ -99,7 +99,25 @@
 
 </script>
 
+<script id = 'end_round_lobby' type = "text/template">
+        <div class= "pure-g main_content">
+            
+            <div class = "pure-u-3-8"></div>
+            <div class = "pure-u-1-4">
+            <div class="drawer-step3 guesser-step3">
+                <div>The current Round is over.</div>
+                <div><span id="correct_count"></span><span>guessed the correct word.</span></div> 
+                <div id="next_drawer"></div><span> the next drawer </span>
+                <div><span>Time Left Until Next Round: </span><span id="timer"></span></div>
+            </div>
+            </div>
+            <div class = "pure-u-4-24"></div>
+            <div class ="pure-u-5-24 max_height">
+                <div id = "chat_area" ></div>
+            </div>
+        </div>
 
+</script>
 
 <script id = "game_area" type="text/template">
     <div class= "pure-g main_content">
